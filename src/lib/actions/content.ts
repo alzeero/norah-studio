@@ -13,7 +13,7 @@ async function requireAdmin() {
     data: { user },
   } = await supabase.auth.getUser();
   if (!user) {
-    throw new Error("You must be signed in to do that.");
+    throw new Error("يجب تسجيل الدخول للقيام بذلك.");
   }
   return supabase;
 }
@@ -41,7 +41,7 @@ async function nextSortOrder(
 
 export async function createCategory(name: string) {
   const trimmed = name.trim();
-  if (!trimmed) throw new Error("Category name is required.");
+  if (!trimmed) throw new Error("اسم الفئة مطلوب.");
   const supabase = await requireAdmin();
   const sort_order = await nextSortOrder(supabase, "categories");
   const { error } = await supabase
@@ -53,7 +53,7 @@ export async function createCategory(name: string) {
 
 export async function renameCategory(id: string, name: string) {
   const trimmed = name.trim();
-  if (!trimmed) throw new Error("Category name is required.");
+  if (!trimmed) throw new Error("اسم الفئة مطلوب.");
   const supabase = await requireAdmin();
   const { error } = await supabase
     .from("categories")
@@ -80,7 +80,7 @@ export async function uploadGalleryImage(formData: FormData) {
   const categoryId = (formData.get("category_id") as string) || null;
   const caption = (formData.get("caption") as string) || null;
 
-  if (!file || file.size === 0) throw new Error("Please choose an image to upload.");
+  if (!file || file.size === 0) throw new Error("يرجى اختيار صورة للرفع.");
 
   const ext = file.name.split(".").pop() || "jpg";
   const path = `gallery/${randomUUID()}.${ext}`;
@@ -154,7 +154,7 @@ export async function reorderGalleryImage(id: string, direction: "up" | "down", 
 export async function createTestimonial(customerName: string, comment: string) {
   const name = customerName.trim();
   const text = comment.trim();
-  if (!name || !text) throw new Error("Name and comment are both required.");
+  if (!name || !text) throw new Error("الاسم والتعليق مطلوبان.");
   const supabase = await requireAdmin();
   const sort_order = await nextSortOrder(supabase, "testimonials");
   const { error } = await supabase
@@ -167,7 +167,7 @@ export async function createTestimonial(customerName: string, comment: string) {
 export async function updateTestimonial(id: string, customerName: string, comment: string) {
   const name = customerName.trim();
   const text = comment.trim();
-  if (!name || !text) throw new Error("Name and comment are both required.");
+  if (!name || !text) throw new Error("الاسم والتعليق مطلوبان.");
   const supabase = await requireAdmin();
   const { error } = await supabase
     .from("testimonials")
@@ -201,7 +201,7 @@ export async function updateHeroText(data: { hero_title: string; hero_subtitle: 
 export async function updateHeroImage(formData: FormData) {
   const supabase = await requireAdmin();
   const file = formData.get("file") as File | null;
-  if (!file || file.size === 0) throw new Error("Please choose an image to upload.");
+  if (!file || file.size === 0) throw new Error("يرجى اختيار صورة للرفع.");
 
   const ext = file.name.split(".").pop() || "jpg";
   const path = `hero/${randomUUID()}.${ext}`;

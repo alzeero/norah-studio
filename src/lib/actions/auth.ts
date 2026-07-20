@@ -5,6 +5,8 @@ import { createClient } from "@/lib/supabase/server";
 
 export type SignInState = { error: string | null };
 
+type SignInError = { message: string; status?: number };
+
 /**
  * Signs the studio's single admin account in. There is no public sign-up —
  * the account is created once, directly in the Supabase dashboard (see
@@ -15,16 +17,32 @@ export async function signIn(_prevState: SignInState, formData: FormData): Promi
   const password = String(formData.get("password") ?? "");
 
   if (!email || !password) {
-    return { error: "Please enter your email and password." };
+    return { error: "يرجى إدخال البريد الإلكتروني وكلمة المرور." };
   }
 
   const supabase = await createClient();
-  const { error } = await supabase.auth.signInWithPassword({ email, password });
+
+  let error: SignInError | null;
+  try {
+    const result = await supabase.auth.signInWithPassword({ email, password });
+    error = result.error;
+  } catch (thrown) {
+    // A network-level failure (DNS, TLS, connection refused, timeout) throws
+    // instead of returning a normal { error } result — this is what
+    // "fetch failed" is: the request never reached Supabase at all.
+    const message = thrown instanceof Error ? thrown.message : String(thrown);
+    console.error("[auth/signIn] Network error reaching Supabase:", message);
+    return {
+      error:
+        "تعذّر الاتصال بـ Supabase (خطأ في الشبكة). تحقّقي من أن مشروع Supabase ليس متوقفًا " +
+        "مؤقتًا (Paused) في لوحة تحكم Supabase، ومن أن NEXT_PUBLIC_SUPABASE_URL في Vercel مطابق " +
+        `تمامًا لقيمة Project URL في Supabase. (${message})`,
+    };
+  }
 
   if (error) {
     // Log the full, real reason server-side — visible in Vercel's function
-    // logs — instead of only ever surfacing one generic message. This is
-    // what actually lets the exact cause be diagnosed instead of guessed.
+    // logs — instead of only ever surfacing one generic message.
     console.error("[auth/signIn] Supabase returned an error:", {
       message: error.message,
       status: error.status,
@@ -36,14 +54,22 @@ export async function signIn(_prevState: SignInState, formData: FormData): Promi
 
     if (code === "email_not_confirmed" || message.includes("email not confirmed")) {
       return {
-        error: "This account's email isn't confirmed. Check it in Supabase → Authentication → Users.",
+        error: "لم يتم تأكيد البريد الإلكتروني لهذا الحساب بعد. تحقّقي منه في Supabase ← Authentication ← Users.",
       };
     }
 
     if (message.includes("email logins are disabled") || message.includes("email provider")) {
       return {
         error:
-          "Email sign-in is disabled for this Supabase project. Enable it under Authentication → Providers → Email.",
+          "تسجيل الدخول بالبريد الإلكتروني معطّل لهذا المشروع. فعّليه من Supabase ← Authentication ← Providers ← Email.",
+      };
+    }
+
+    if (message.includes("fetch failed") || message.includes("network")) {
+      return {
+        error:
+          "تعذّر الاتصال بـ Supabase (خطأ في الشبكة). تحقّقي من أن المشروع ليس متوقفًا مؤقتًا، " +
+          "ومن صحة NEXT_PUBLIC_SUPABASE_URL في Vercel.",
       };
     }
 
@@ -52,16 +78,15 @@ export async function signIn(_prevState: SignInState, formData: FormData): Promi
       // password is wrong AND when no user with this email exists at all
       // (an anti-enumeration measure) — so this can also mean the account
       // was created in a different Supabase project than the one this app
-      // is actually connected to. Double-check that NEXT_PUBLIC_SUPABASE_URL
-      // in Vercel matches the Project URL of the Supabase project the user
-      // was created in.
-      return { error: "Incorrect email or password." };
+      // is actually connected to. Worth checking NEXT_PUBLIC_SUPABASE_URL in
+      // Vercel against the Project URL of the project the user actually
+      // lives in.
+      return { error: "البريد الإلكتروني أو كلمة المرور غير صحيحة." };
     }
 
-    // Anything else — wrong API key, rate limit, network error, disabled
-    // project, etc. — surface it directly instead of mislabeling it as a
-    // credentials problem.
-    return { error: `Sign-in failed: ${error.message}` };
+    // Anything else — wrong API key, rate limit, disabled project, etc. —
+    // surface it directly instead of mislabeling it as a credentials issue.
+    return { error: `فشل تسجيل الدخول: ${error.message}` };
   }
 
   redirect("/admin/dashboard");
