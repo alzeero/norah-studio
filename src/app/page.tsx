@@ -4,6 +4,7 @@ import { Hero } from "@/components/site/hero";
 import { PortfolioSection } from "@/components/site/portfolio-section";
 import { Testimonials } from "@/components/site/testimonials";
 import { WhatsAppSection } from "@/components/site/whatsapp-section";
+import { FloatingWhatsApp } from "@/components/site/floating-whatsapp";
 import { Footer } from "@/components/site/footer";
 
 // Revalidate frequently for a fast, cache-friendly public page; dashboard
@@ -23,6 +24,7 @@ export default async function HomePage() {
         <WhatsAppSection settings={settings} />
       </main>
       <Footer />
+      <FloatingWhatsApp phone={settings.whatsapp_phone} message={settings.whatsapp_message} />
     </>
   );
 }
