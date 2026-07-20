@@ -66,7 +66,7 @@ export function Dialog({ open, onClose, title, description, children, className 
               </div>
               <button
                 onClick={onClose}
-                aria-label="Close"
+                aria-label="إغلاق"
                 className="shrink-0 rounded-full p-1.5 text-fg-muted transition-colors hover:bg-gold/10 hover:text-gold"
               >
                 <X size={18} />
