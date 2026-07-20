@@ -24,10 +24,10 @@ export function SettingsManager({ settings }: { settings: SiteSettings }) {
     startTransition(async () => {
       try {
         await updateGeneralSettings({ default_theme: value });
-        setSuccess("Default theme updated.");
+        setSuccess("تم تحديث المظهر الافتراضي بنجاح.");
         router.refresh();
       } catch (e) {
-        setError(e instanceof Error ? e.message : "Something went wrong.");
+        setError(e instanceof Error ? e.message : "حدث خطأ ما.");
       } finally {
         setBusy(false);
       }
@@ -37,9 +37,9 @@ export function SettingsManager({ settings }: { settings: SiteSettings }) {
   return (
     <div className="max-w-lg space-y-6">
       <div>
-        <h2 className="text-heading font-medium">General</h2>
+        <h2 className="text-heading font-medium">الإعدادات العامة</h2>
         <p className="mt-1 text-sm text-fg-muted">
-          The default appearance for first-time visitors. Returning visitors keep whatever they last chose.
+          المظهر الافتراضي للزوار الجدد. يحتفظ الزوار العائدون بآخر اختيار قاموا به.
         </p>
       </div>
 
@@ -53,7 +53,7 @@ export function SettingsManager({ settings }: { settings: SiteSettings }) {
           )}
         >
           <Sun size={20} className={theme === "light" ? "text-gold" : "text-fg-muted"} />
-          <span className="text-sm font-medium">Light</span>
+          <span className="text-sm font-medium">فاتح</span>
         </button>
         <button
           disabled={busy}
@@ -64,7 +64,7 @@ export function SettingsManager({ settings }: { settings: SiteSettings }) {
           )}
         >
           <Moon size={20} className={theme === "dark" ? "text-gold" : "text-fg-muted"} />
-          <span className="text-sm font-medium">Dark</span>
+          <span className="text-sm font-medium">داكن</span>
         </button>
       </div>
 

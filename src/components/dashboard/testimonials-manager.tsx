@@ -33,7 +33,7 @@ export function TestimonialsManager({ testimonials }: { testimonials: Testimonia
         onDone?.();
         router.refresh();
       } catch (e) {
-        setError(e instanceof Error ? e.message : "Something went wrong.");
+        setError(e instanceof Error ? e.message : "حدث خطأ ما.");
       } finally {
         setBusy(false);
       }
@@ -65,19 +65,19 @@ export function TestimonialsManager({ testimonials }: { testimonials: Testimonia
       <FieldError>{error}</FieldError>
 
       <section>
-        <h2 className="text-heading font-medium">Add a testimonial</h2>
-        <p className="mt-1 text-sm text-fg-muted">Paste real client feedback — Arabic or English both work.</p>
+        <h2 className="text-heading font-medium">إضافة رأي عميل</h2>
+        <p className="mt-1 text-sm text-fg-muted">الصقي رأي العميل الحقيقي — يمكن كتابته بالعربية أو الإنجليزية.</p>
         <form onSubmit={handleAdd} className="mt-4 max-w-lg space-y-4">
           <div>
-            <Label htmlFor="t-name">Customer name</Label>
+            <Label htmlFor="t-name">اسم العميل</Label>
             <Input id="t-name" value={name} onChange={(e) => setName(e.target.value)} />
           </div>
           <div>
-            <Label htmlFor="t-comment">Comment</Label>
+            <Label htmlFor="t-comment">التعليق</Label>
             <Textarea id="t-comment" value={comment} onChange={(e) => setComment(e.target.value)} />
           </div>
           <Button type="submit" disabled={busy}>
-            <Plus size={16} /> Add testimonial
+            <Plus size={16} /> إضافة الرأي
           </Button>
         </form>
       </section>
@@ -85,7 +85,7 @@ export function TestimonialsManager({ testimonials }: { testimonials: Testimonia
       <div className="h-px bg-border" />
 
       <section>
-        <h2 className="text-heading font-medium">All testimonials ({testimonials.length})</h2>
+        <h2 className="text-heading font-medium">جميع الآراء ({testimonials.length})</h2>
         <div className="mt-4 space-y-3">
           {testimonials.map((t) => (
             <div key={t.id} className="flex items-start justify-between gap-4 rounded-lg border border-border p-4">
@@ -109,26 +109,26 @@ export function TestimonialsManager({ testimonials }: { testimonials: Testimonia
               </div>
             </div>
           ))}
-          {testimonials.length === 0 && <p className="text-sm text-fg-muted">No testimonials yet.</p>}
+          {testimonials.length === 0 && <p className="text-sm text-fg-muted">لا توجد آراء بعد.</p>}
         </div>
       </section>
 
-      <Dialog open={!!editing} onClose={() => setEditing(null)} title="Edit testimonial">
+      <Dialog open={!!editing} onClose={() => setEditing(null)} title="تعديل الرأي">
         <div className="space-y-4">
           <div>
-            <Label htmlFor="edit-t-name">Customer name</Label>
+            <Label htmlFor="edit-t-name">اسم العميل</Label>
             <Input id="edit-t-name" value={editName} onChange={(e) => setEditName(e.target.value)} />
           </div>
           <div>
-            <Label htmlFor="edit-t-comment">Comment</Label>
+            <Label htmlFor="edit-t-comment">التعليق</Label>
             <Textarea id="edit-t-comment" value={editComment} onChange={(e) => setEditComment(e.target.value)} />
           </div>
           <div className="flex justify-end gap-2 pt-2">
             <Button variant="ghost" onClick={() => setEditing(null)}>
-              Cancel
+              إلغاء
             </Button>
             <Button onClick={saveEdit} disabled={busy}>
-              Save changes
+              حفظ التغييرات
             </Button>
           </div>
         </div>
@@ -137,12 +137,12 @@ export function TestimonialsManager({ testimonials }: { testimonials: Testimonia
       <Dialog
         open={!!deleteTarget}
         onClose={() => setDeleteTarget(null)}
-        title="Delete this testimonial?"
-        description="This can't be undone."
+        title="هل تريدين حذف هذا الرأي؟"
+        description="لا يمكن التراجع عن هذا الإجراء."
       >
         <div className="flex justify-end gap-2">
           <Button variant="ghost" onClick={() => setDeleteTarget(null)}>
-            Cancel
+            إلغاء
           </Button>
           <Button
             className="bg-red-500 text-white hover:bg-red-600"
@@ -151,7 +151,7 @@ export function TestimonialsManager({ testimonials }: { testimonials: Testimonia
               deleteTarget && run(() => deleteTestimonial(deleteTarget.id), () => setDeleteTarget(null))
             }
           >
-            Delete
+            حذف
           </Button>
         </div>
       </Dialog>

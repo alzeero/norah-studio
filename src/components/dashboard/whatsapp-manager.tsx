@@ -26,10 +26,10 @@ export function WhatsappManager({ settings }: { settings: SiteSettings }) {
     startTransition(async () => {
       try {
         await updateWhatsappSettings({ whatsapp_phone: phone, whatsapp_message: message });
-        setSuccess("WhatsApp settings updated.");
+        setSuccess("تم تحديث إعدادات واتساب بنجاح.");
         router.refresh();
       } catch (err) {
-        setError(err instanceof Error ? err.message : "Something went wrong.");
+        setError(err instanceof Error ? err.message : "حدث خطأ ما.");
       } finally {
         setBusy(false);
       }
@@ -39,15 +39,15 @@ export function WhatsappManager({ settings }: { settings: SiteSettings }) {
   return (
     <div className="max-w-lg space-y-6">
       <div>
-        <h2 className="text-heading font-medium">WhatsApp</h2>
+        <h2 className="text-heading font-medium">واتساب</h2>
         <p className="mt-1 text-sm text-fg-muted">
-          Powers the "Book a Session" button. Include the country code, no + or spaces (e.g. 9665XXXXXXXX).
+          يشغّل زر "احجزي جلستك". أدخلي رمز الدولة بدون + أو مسافات (مثال: 9665XXXXXXXX).
         </p>
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
-          <Label htmlFor="wa-phone">Phone number</Label>
+          <Label htmlFor="wa-phone">رقم الهاتف</Label>
           <Input
             id="wa-phone"
             value={phone}
@@ -57,7 +57,7 @@ export function WhatsappManager({ settings }: { settings: SiteSettings }) {
           />
         </div>
         <div>
-          <Label htmlFor="wa-message">Default message</Label>
+          <Label htmlFor="wa-message">الرسالة الافتراضية</Label>
           <Textarea
             id="wa-message"
             value={message}
@@ -67,7 +67,7 @@ export function WhatsappManager({ settings }: { settings: SiteSettings }) {
           />
         </div>
         <Button type="submit" disabled={busy}>
-          Save WhatsApp settings
+          حفظ إعدادات واتساب
         </Button>
         <FieldError>{error}</FieldError>
         <FieldSuccess>{success}</FieldSuccess>
@@ -80,7 +80,7 @@ export function WhatsappManager({ settings }: { settings: SiteSettings }) {
           rel="noopener noreferrer"
           className="inline-block text-sm text-gold underline underline-offset-4"
         >
-          Preview this link on WhatsApp
+          معاينة الرابط على واتساب
         </a>
       )}
     </div>

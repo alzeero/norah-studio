@@ -29,7 +29,7 @@ export function HeroManager({ settings }: { settings: SiteSettings }) {
         setSuccess(message);
         router.refresh();
       } catch (e) {
-        setError(e instanceof Error ? e.message : "Something went wrong.");
+        setError(e instanceof Error ? e.message : "حدث خطأ ما.");
       } finally {
         setBusy(false);
       }
@@ -38,39 +38,39 @@ export function HeroManager({ settings }: { settings: SiteSettings }) {
 
   function handleTextSubmit(e: FormEvent) {
     e.preventDefault();
-    run(() => updateHeroText({ hero_title: title, hero_subtitle: subtitle }), "Hero text updated.");
+    run(() => updateHeroText({ hero_title: title, hero_subtitle: subtitle }), "تم تحديث النص بنجاح.");
   }
 
   function handleImageSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const file = fileInputRef.current?.files?.[0];
     if (!file) {
-      setError("Choose an image first.");
+      setError("يرجى اختيار صورة أولاً.");
       return;
     }
     const formData = new FormData();
     formData.set("file", file);
-    run(() => updateHeroImage(formData), "Hero image updated.");
+    run(() => updateHeroImage(formData), "تم تحديث الصورة بنجاح.");
   }
 
   return (
     <div className="space-y-10">
       <section>
-        <h2 className="text-heading font-medium">Hero text</h2>
+        <h2 className="text-heading font-medium">نص الواجهة الرئيسية</h2>
         <p className="mt-1 text-sm text-fg-muted">
-          Shown large over the hero photo. Arabic or English is detected automatically.
+          يظهر بشكل كبير فوق صورة الواجهة الرئيسية. يتم اكتشاف اللغة (عربي أو إنجليزي) تلقائيًا.
         </p>
         <form onSubmit={handleTextSubmit} className="mt-4 max-w-md space-y-4">
           <div>
-            <Label htmlFor="hero-title">Title</Label>
+            <Label htmlFor="hero-title">العنوان</Label>
             <Input id="hero-title" value={title} onChange={(e) => setTitle(e.target.value)} />
           </div>
           <div>
-            <Label htmlFor="hero-subtitle">Subtitle / tagline</Label>
+            <Label htmlFor="hero-subtitle">العنوان الفرعي / الشعار</Label>
             <Input id="hero-subtitle" value={subtitle} onChange={(e) => setSubtitle(e.target.value)} />
           </div>
           <Button type="submit" disabled={busy}>
-            Save text
+            حفظ النص
           </Button>
         </form>
       </section>
@@ -78,12 +78,12 @@ export function HeroManager({ settings }: { settings: SiteSettings }) {
       <div className="h-px bg-border" />
 
       <section>
-        <h2 className="text-heading font-medium">Hero photo</h2>
-        <p className="mt-1 text-sm text-fg-muted">The large full-width photo behind the hero text.</p>
+        <h2 className="text-heading font-medium">صورة الواجهة الرئيسية</h2>
+        <p className="mt-1 text-sm text-fg-muted">الصورة الكبيرة بعرض الشاشة خلف نص الواجهة الرئيسية.</p>
 
         {settings.hero_image_url && (
           <div className="relative mt-4 aspect-video max-w-md overflow-hidden rounded-lg border border-border">
-            <Image src={settings.hero_image_url} alt="Current hero" fill className="object-cover" />
+            <Image src={settings.hero_image_url} alt="الصورة الحالية" fill className="object-cover" />
           </div>
         )}
 
@@ -93,10 +93,10 @@ export function HeroManager({ settings }: { settings: SiteSettings }) {
             type="file"
             accept="image/*"
             required
-            className="block text-sm text-fg-muted file:mr-4 file:rounded-full file:border-0 file:bg-gold/15 file:px-4 file:py-2 file:text-sm file:font-medium file:text-gold hover:file:bg-gold/25"
+            className="block text-sm text-fg-muted file:me-4 file:rounded-full file:border-0 file:bg-gold/15 file:px-4 file:py-2 file:text-sm file:font-medium file:text-gold hover:file:bg-gold/25"
           />
           <Button type="submit" disabled={busy}>
-            {busy ? "Uploading…" : "Replace hero photo"}
+            {busy ? "جارٍ الرفع…" : "استبدال صورة الواجهة الرئيسية"}
           </Button>
         </form>
       </section>

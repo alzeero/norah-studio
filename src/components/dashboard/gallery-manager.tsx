@@ -50,7 +50,7 @@ export function GalleryManager({
         onDone?.();
         router.refresh();
       } catch (e) {
-        setError(e instanceof Error ? e.message : "Something went wrong.");
+        setError(e instanceof Error ? e.message : "حدث خطأ ما.");
       } finally {
         setBusy(false);
       }
@@ -67,7 +67,7 @@ export function GalleryManager({
     e.preventDefault();
     const file = fileInputRef.current?.files?.[0];
     if (!file) {
-      setError("Choose an image to upload first.");
+      setError("يرجى اختيار صورة للرفع أولاً.");
       return;
     }
     const formData = new FormData();
@@ -104,20 +104,20 @@ export function GalleryManager({
 
       {/* Categories */}
       <section>
-        <h2 className="text-heading font-medium">Categories</h2>
+        <h2 className="text-heading font-medium">الفئات</h2>
         <p className="mt-1 text-sm text-fg-muted">
-          Create the categories visitors can filter by (Weddings, Portrait, Family…).
+          أنشئي الفئات التي يمكن للزوار التصفية من خلالها (حفلات الزفاف، بورتريه، عائلي...).
         </p>
 
         <form onSubmit={handleAddCategory} className="mt-4 flex gap-2">
           <Input
             value={newCategoryName}
             onChange={(e) => setNewCategoryName(e.target.value)}
-            placeholder="e.g. Weddings"
+            placeholder="مثال: حفلات الزفاف"
             className="max-w-xs"
           />
           <Button type="submit" size="md" disabled={busy}>
-            <Plus size={16} /> Add
+            <Plus size={16} /> إضافة
           </Button>
         </form>
 
@@ -130,7 +130,7 @@ export function GalleryManager({
               {category.name}
               <button
                 type="button"
-                aria-label={`Delete ${category.name}`}
+                aria-label={`حذف ${category.name}`}
                 onClick={() => setDeleteCategoryTarget(category)}
                 className="rounded-full p-1 text-fg-muted hover:bg-red-500/10 hover:text-red-500"
               >
@@ -139,7 +139,7 @@ export function GalleryManager({
             </li>
           ))}
           {categories.length === 0 && (
-            <p className="text-sm text-fg-muted">No categories yet — add your first one above.</p>
+            <p className="text-sm text-fg-muted">لا توجد فئات بعد — أضيفي أول فئة أعلاه.</p>
           )}
         </ul>
       </section>
@@ -148,10 +148,10 @@ export function GalleryManager({
 
       {/* Upload */}
       <section>
-        <h2 className="text-heading font-medium">Upload an image</h2>
+        <h2 className="text-heading font-medium">رفع صورة</h2>
         <form onSubmit={handleUpload} className="mt-4 grid gap-4 sm:grid-cols-2">
           <div className="sm:col-span-2">
-            <Label htmlFor="file">Image file</Label>
+            <Label htmlFor="file">ملف الصورة</Label>
             <input
               ref={fileInputRef}
               id="file"
@@ -159,17 +159,17 @@ export function GalleryManager({
               type="file"
               accept="image/*"
               required
-              className="block w-full text-sm text-fg-muted file:mr-4 file:rounded-full file:border-0 file:bg-gold/15 file:px-4 file:py-2 file:text-sm file:font-medium file:text-gold hover:file:bg-gold/25"
+              className="block w-full text-sm text-fg-muted file:me-4 file:rounded-full file:border-0 file:bg-gold/15 file:px-4 file:py-2 file:text-sm file:font-medium file:text-gold hover:file:bg-gold/25"
             />
           </div>
           <div>
-            <Label htmlFor="upload-category">Category</Label>
+            <Label htmlFor="upload-category">الفئة</Label>
             <Select
               id="upload-category"
               value={uploadCategoryId}
               onChange={(e) => setUploadCategoryId(e.target.value)}
             >
-              <option value="">Uncategorized</option>
+              <option value="">بدون فئة</option>
               {categories.map((c) => (
                 <option key={c.id} value={c.id}>
                   {c.name}
@@ -178,11 +178,11 @@ export function GalleryManager({
             </Select>
           </div>
           <div>
-            <Label htmlFor="upload-caption">Caption (optional)</Label>
+            <Label htmlFor="upload-caption">وصف الصورة (اختياري)</Label>
             <Input id="upload-caption" value={uploadCaption} onChange={(e) => setUploadCaption(e.target.value)} />
           </div>
           <Button type="submit" disabled={busy} className="sm:col-span-2 sm:w-fit">
-            <Upload size={16} /> {busy ? "Uploading…" : "Upload image"}
+            <Upload size={16} /> {busy ? "جارٍ الرفع…" : "رفع الصورة"}
           </Button>
         </form>
       </section>
@@ -191,7 +191,7 @@ export function GalleryManager({
 
       {/* Existing images */}
       <section>
-        <h2 className="text-heading font-medium">Gallery ({images.length})</h2>
+        <h2 className="text-heading font-medium">المعرض ({images.length})</h2>
         <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {images.map((image, index) => {
             const category = categories.find((c) => c.id === image.category_id);
@@ -202,12 +202,12 @@ export function GalleryManager({
                 </div>
                 <div className="space-y-2 p-3">
                   <p className="truncate text-sm text-fg-muted">
-                    {category?.name ?? "Uncategorized"}
+                    {category?.name ?? "بدون فئة"}
                     {image.caption ? ` · ${image.caption}` : ""}
                   </p>
                   <div className="flex items-center gap-1">
                     <button
-                      title="Move up"
+                      title="تحريك لأعلى"
                       disabled={index === 0 || busy}
                       onClick={() => run(() => reorderGalleryImage(image.id, "up", image.sort_order))}
                       className="rounded p-1.5 text-fg-muted hover:bg-gold/10 hover:text-gold disabled:opacity-30"
@@ -215,7 +215,7 @@ export function GalleryManager({
                       <ArrowUp size={14} />
                     </button>
                     <button
-                      title="Move down"
+                      title="تحريك لأسفل"
                       disabled={index === images.length - 1 || busy}
                       onClick={() => run(() => reorderGalleryImage(image.id, "down", image.sort_order))}
                       className="rounded p-1.5 text-fg-muted hover:bg-gold/10 hover:text-gold disabled:opacity-30"
@@ -223,14 +223,14 @@ export function GalleryManager({
                       <ArrowDown size={14} />
                     </button>
                     <button
-                      title="Edit"
+                      title="تعديل"
                       onClick={() => openEdit(image)}
                       className="rounded p-1.5 text-fg-muted hover:bg-gold/10 hover:text-gold"
                     >
                       <Pencil size={14} />
                     </button>
                     <button
-                      title="Delete"
+                      title="حذف"
                       onClick={() => setDeleteTarget(image)}
                       className="ms-auto rounded p-1.5 text-fg-muted hover:bg-red-500/10 hover:text-red-500"
                     >
@@ -242,18 +242,18 @@ export function GalleryManager({
             );
           })}
           {images.length === 0 && (
-            <p className="text-sm text-fg-muted">No images yet — upload your first one above.</p>
+            <p className="text-sm text-fg-muted">لا توجد صور بعد — ارفعي أول صورة أعلاه.</p>
           )}
         </div>
       </section>
 
       {/* Edit dialog */}
-      <Dialog open={!!editingImage} onClose={() => setEditingImage(null)} title="Edit image">
+      <Dialog open={!!editingImage} onClose={() => setEditingImage(null)} title="تعديل الصورة">
         <div className="space-y-4">
           <div>
-            <Label htmlFor="edit-category">Category</Label>
+            <Label htmlFor="edit-category">الفئة</Label>
             <Select id="edit-category" value={editCategoryId} onChange={(e) => setEditCategoryId(e.target.value)}>
-              <option value="">Uncategorized</option>
+              <option value="">بدون فئة</option>
               {categories.map((c) => (
                 <option key={c.id} value={c.id}>
                   {c.name}
@@ -262,15 +262,15 @@ export function GalleryManager({
             </Select>
           </div>
           <div>
-            <Label htmlFor="edit-caption">Caption</Label>
+            <Label htmlFor="edit-caption">وصف الصورة</Label>
             <Textarea id="edit-caption" value={editCaption} onChange={(e) => setEditCaption(e.target.value)} />
           </div>
           <div className="flex justify-end gap-2 pt-2">
             <Button variant="ghost" onClick={() => setEditingImage(null)}>
-              Cancel
+              إلغاء
             </Button>
             <Button onClick={saveEdit} disabled={busy}>
-              Save changes
+              حفظ التغييرات
             </Button>
           </div>
         </div>
@@ -280,12 +280,12 @@ export function GalleryManager({
       <Dialog
         open={!!deleteTarget}
         onClose={() => setDeleteTarget(null)}
-        title="Delete this image?"
-        description="This can't be undone. The file will be permanently removed from storage."
+        title="هل تريدين حذف هذه الصورة؟"
+        description="لا يمكن التراجع عن هذا الإجراء. سيتم حذف الملف نهائيًا من التخزين."
       >
         <div className="flex justify-end gap-2">
           <Button variant="ghost" onClick={() => setDeleteTarget(null)}>
-            Cancel
+            إلغاء
           </Button>
           <Button
             className="bg-red-500 text-white hover:bg-red-600"
@@ -297,7 +297,7 @@ export function GalleryManager({
               )
             }
           >
-            Delete
+            حذف
           </Button>
         </div>
       </Dialog>
@@ -306,12 +306,12 @@ export function GalleryManager({
       <Dialog
         open={!!deleteCategoryTarget}
         onClose={() => setDeleteCategoryTarget(null)}
-        title={`Delete "${deleteCategoryTarget?.name}"?`}
-        description="Images in this category will become Uncategorized, not deleted."
+        title={`هل تريدين حذف "${deleteCategoryTarget?.name}"؟`}
+        description="ستصبح صور هذه الفئة بدون تصنيف ولن يتم حذفها."
       >
         <div className="flex justify-end gap-2">
           <Button variant="ghost" onClick={() => setDeleteCategoryTarget(null)}>
-            Cancel
+            إلغاء
           </Button>
           <Button
             className="bg-red-500 text-white hover:bg-red-600"
@@ -321,7 +321,7 @@ export function GalleryManager({
               run(() => deleteCategory(deleteCategoryTarget.id), () => setDeleteCategoryTarget(null))
             }
           >
-            Delete
+            حذف
           </Button>
         </div>
       </Dialog>

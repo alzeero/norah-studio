@@ -11,18 +11,18 @@ export function LoginForm() {
   const [state, formAction, pending] = useActionState(signIn, initialState);
 
   return (
-    <form action={formAction} className="space-y-5">
+    <form action={formAction} dir="rtl" className="space-y-5">
       <div>
-        <Label htmlFor="email">Email</Label>
-        <Input id="email" name="email" type="email" autoComplete="email" required />
+        <Label htmlFor="email">البريد الإلكتروني</Label>
+        <Input id="email" name="email" type="email" autoComplete="email" dir="ltr" required />
       </div>
       <div>
-        <Label htmlFor="password">Password</Label>
-        <Input id="password" name="password" type="password" autoComplete="current-password" required />
+        <Label htmlFor="password">كلمة المرور</Label>
+        <Input id="password" name="password" type="password" autoComplete="current-password" dir="ltr" required />
       </div>
       <FieldError>{state.error}</FieldError>
       <Button type="submit" disabled={pending} className="w-full">
-        {pending ? "Signing in…" : "Sign in"}
+        {pending ? "جارٍ تسجيل الدخول…" : "تسجيل الدخول"}
       </Button>
     </form>
   );
