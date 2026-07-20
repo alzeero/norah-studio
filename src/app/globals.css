@@ -1,0 +1,127 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Light mode — warm white, near-black type, gold extracted from the
+       NORAH STUDIO logo. Values are H S% L% for use with hsl(var(--x)). */
+    --bg: 40 47% 96%;
+    --bg-elevated: 0 0% 100%;
+    --fg: 40 17% 7%;
+    --fg-muted: 44 11% 39%;
+    --gold: 40 48% 57%;
+    --gold-deep: 40 43% 43%;
+    --gold-soft: 42 55% 86%;
+    --border: 42 34% 87%;
+  }
+
+  .dark {
+    /* Dark mode — the exact deep greenish-black sampled from the logo
+       background, soft warm white type, brightened gold for contrast. */
+    --bg: 133 18% 10%;
+    --bg-elevated: 131 17% 13%;
+    --fg: 45 32% 93%;
+    --fg-muted: 44 11% 61%;
+    --gold: 39 52% 64%;
+    --gold-deep: 39 39% 50%;
+    --gold-soft: 138 15% 17%;
+    --border: 135 12% 19%;
+  }
+
+  html {
+    scroll-behavior: smooth;
+  }
+
+  html[dir="rtl"] {
+    font-family: var(--font-arabic);
+  }
+
+  html[dir="ltr"] {
+    font-family: var(--font-sans);
+  }
+
+  body {
+    background-color: hsl(var(--bg));
+    color: hsl(var(--fg));
+    transition: background-color 0.4s ease, color 0.4s ease;
+  }
+
+  ::selection {
+    background-color: hsl(var(--gold) / 0.28);
+    color: hsl(var(--fg));
+  }
+
+  :focus-visible {
+    outline: 2px solid hsl(var(--gold));
+    outline-offset: 3px;
+  }
+}
+
+@layer utilities {
+  /* Thin hairline gold rule used as a quiet section motif. */
+  .rule-gold {
+    background: linear-gradient(
+      90deg,
+      transparent,
+      hsl(var(--gold) / 0.6) 50%,
+      transparent
+    );
+    height: 1px;
+  }
+
+  /* Camera-viewfinder corner brackets — the site's one signature motif,
+     drawn from the photography subject itself. Toggled with opacity so it
+     can be transitioned smoothly on hover/focus. */
+  .frame-corners::before,
+  .frame-corners::after,
+  .frame-corners > .corner-tl,
+  .frame-corners > .corner-br {
+    content: "";
+    position: absolute;
+    width: 22px;
+    height: 22px;
+    border-color: hsl(var(--gold));
+    opacity: 0;
+    transition: opacity 0.45s cubic-bezier(0.22, 1, 0.36, 1),
+      transform 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+    pointer-events: none;
+  }
+
+  .frame-corners::before {
+    top: 12px;
+    left: 12px;
+    border-top: 1.5px solid;
+    border-left: 1.5px solid;
+    transform: translate(4px, 4px);
+  }
+
+  .frame-corners::after {
+    bottom: 12px;
+    right: 12px;
+    border-bottom: 1.5px solid;
+    border-right: 1.5px solid;
+    transform: translate(-4px, -4px);
+  }
+
+  .frame-corners:hover::before,
+  .frame-corners:focus-visible::before,
+  .frame-corners:hover::after,
+  .frame-corners:focus-visible::after {
+    opacity: 1;
+    transform: translate(0, 0);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}
