@@ -57,14 +57,14 @@ export function Hero({ settings }: { settings: SiteSettings }) {
             width={220}
             height={140}
             priority
-            className="h-16 w-auto sm:h-20"
+            className="h-24 w-auto sm:h-[7.5rem]"
           />
         </motion.div>
 
         <motion.h1
           variants={item}
           dir={textDir(settings.hero_title)}
-          className={`mt-8 text-display-lg font-medium text-white ${
+          className={`mt-8 whitespace-nowrap text-hero-title font-medium text-white ${
             isArabicText(settings.hero_title) ? "font-arabic" : "font-sans"
           }`}
         >
