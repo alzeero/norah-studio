@@ -1,6 +1,55 @@
 export type Lang = "ar" | "en";
 
-export const dictionary = {
+/**
+ * Explicit structural type for the UI dictionary. Leaves are `string`, not
+ * string literals — the ar/en objects intentionally hold different text, so
+ * pinning them to each other's exact literal values (which is what
+ * `as const` + `typeof dictionary["ar"]` used to do) is wrong and breaks
+ * the build. Both dictionaries are checked against this same shape instead.
+ */
+export type Dictionary = {
+  nav: {
+    portfolio: string;
+    testimonials: string;
+    book: string;
+  };
+  hero: {
+    role: string;
+    cta: string;
+    scroll: string;
+  };
+  categories: {
+    eyebrow: string;
+    heading: string;
+    all: string;
+  };
+  gallery: {
+    empty: string;
+  };
+  testimonials: {
+    eyebrow: string;
+    heading: string;
+    empty: string;
+  };
+  whatsapp: {
+    eyebrow: string;
+    heading: string;
+    body: string;
+    cta: string;
+  };
+  footer: {
+    tagline: string;
+    rights: string;
+  };
+  theme: {
+    toggle: string;
+  };
+  lang: {
+    toggle: string;
+  };
+};
+
+export const dictionary: Record<Lang, Dictionary> = {
   ar: {
     nav: {
       portfolio: "الأعمال",
@@ -83,6 +132,4 @@ export const dictionary = {
       toggle: "عربي",
     },
   },
-} as const;
-
-export type Dictionary = (typeof dictionary)["ar"];
+};
