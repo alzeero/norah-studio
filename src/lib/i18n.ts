@@ -70,7 +70,7 @@ export const dictionary: Record<Lang, Dictionary> = {
       empty: "سيتم إضافة الصور قريبًا",
     },
     testimonials: {
-      eyebrow: "الشهادات",
+      eyebrow: "آراء العملاء",
       heading: "ماذا يقول عملاؤنا",
       empty: "لا توجد آراء بعد",
     },
