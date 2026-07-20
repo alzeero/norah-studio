@@ -2,24 +2,19 @@
  * Single source of truth for the two Supabase environment variables.
  * Every client (browser, server, middleware) imports from here instead of
  * reading `process.env` directly, so there is exactly one place that
- * validates them and exactly one error message if they're missing.
+ * validates them and exactly one error message if they're missing or
+ * malformed.
  *
- * Why throw here instead of letting `@supabase/ssr` fail on its own: its
- * error ("Your project's URL and Key are required...") doesn't say *which*
- * variable is missing or why. This does.
+ * Two failure modes are handled, on purpose:
  *
- * If this throws in a deployment that supposedly already has both variables
- * set in Vercel, the almost-certain cause is that the *currently live build*
- * was produced before the variables were added. `NEXT_PUBLIC_*` values are
- * inlined into the bundle at build time, not read at request time — so:
- *   1. Confirm the variables are enabled for the environment this
- *      deployment belongs to (Production / Preview / Development each have
- *      their own toggles in Vercel's Environment Variables settings).
- *   2. Trigger a genuinely new build: push a commit, or use "Redeploy" with
- *      "Use existing Build Cache" UNCHECKED. A cached redeploy can reuse the
- *      old bundle and will not pick up a variable added after the last real
- *      build.
- * Locally, add the variable to `.env.local` and restart `npm run dev`.
+ * 1. Missing entirely — throws immediately, naming the variable.
+ * 2. Present but malformed (stray quotes from a copy-paste, missing
+ *    "https://", a trailing slash) — these don't fail loudly on their own;
+ *    they instead produce a working-looking client that fails the moment it
+ *    tries to make a real network call, surfacing as a generic
+ *    "fetch failed" deep inside @supabase/ssr with no indication of why.
+ *    This validates and normalizes the URL up front so a malformed value
+ *    fails here, clearly, instead of there.
  */
 function requireEnv(name: string, value: string | undefined): string {
   if (!value || value.trim().length === 0) {
@@ -31,10 +26,39 @@ function requireEnv(name: string, value: string | undefined): string {
         `.env.local and restart the dev server.`
     );
   }
-  return value;
+  // Defensively strip characters that commonly sneak in from copy-pasting a
+  // value that was displayed wrapped in quotes, plus surrounding whitespace.
+  return value.trim().replace(/^['"]+|['"]+$/g, "");
 }
 
-export const supabaseUrl = requireEnv("NEXT_PUBLIC_SUPABASE_URL", process.env.NEXT_PUBLIC_SUPABASE_URL);
+function requireSupabaseUrl(name: string, value: string | undefined): string {
+  const cleaned = requireEnv(name, value);
+
+  let parsed: URL;
+  try {
+    parsed = new URL(cleaned);
+  } catch {
+    throw new Error(
+      `Environment variable "${name}" is set to "${cleaned}", which is not a valid URL. ` +
+        `It must look exactly like https://<project-ref>.supabase.co — copy it fresh from ` +
+        `Supabase → Project Settings → API → Project URL, with no surrounding quotes, no ` +
+        `trailing slash, and no extra characters.`
+    );
+  }
+
+  if (parsed.protocol !== "https:") {
+    throw new Error(
+      `Environment variable "${name}" is "${cleaned}" — it must start with "https://". ` +
+        `Copy the Project URL again from Supabase → Project Settings → API.`
+    );
+  }
+
+  // .origin normalizes to "protocol://host" with no trailing slash and no
+  // path, which is exactly the form @supabase/ssr expects as the base URL.
+  return parsed.origin;
+}
+
+export const supabaseUrl = requireSupabaseUrl("NEXT_PUBLIC_SUPABASE_URL", process.env.NEXT_PUBLIC_SUPABASE_URL);
 
 export const supabaseAnonKey = requireEnv(
   "NEXT_PUBLIC_SUPABASE_ANON_KEY",
