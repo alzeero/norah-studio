@@ -23,6 +23,7 @@ const config: Config = {
       },
       fontSize: {
         "display-lg": ["clamp(2.75rem, 3rem + 3vw, 5.5rem)", { lineHeight: "1.02", letterSpacing: "-0.02em" }],
+        "hero-title": ["clamp(2rem, 1.4rem + 4vw, 4.25rem)", { lineHeight: "1.05", letterSpacing: "-0.02em" }],
         display: ["clamp(2.25rem, 2rem + 2.5vw, 4rem)", { lineHeight: "1.05", letterSpacing: "-0.02em" }],
         "heading-lg": ["clamp(1.75rem, 1.5rem + 1.5vw, 2.75rem)", { lineHeight: "1.15", letterSpacing: "-0.01em" }],
         heading: ["clamp(1.375rem, 1.25rem + 0.8vw, 1.75rem)", { lineHeight: "1.25", letterSpacing: "-0.01em" }],
