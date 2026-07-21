@@ -43,7 +43,7 @@ export function DashboardShell({
   }, []);
 
   return (
-    <div dir="rtl" className="min-h-screen w-full overflow-x-hidden bg-bg text-fg">
+    <div dir="rtl" className="dashboard-root min-h-screen w-full overflow-x-hidden bg-bg text-fg">
       <header className="sticky top-0 z-30 flex h-14 items-center justify-between gap-3 border-b border-border bg-bg-elevated px-4 sm:h-16 sm:px-8">
         <div className="flex min-w-0 items-center gap-3">
           <Image

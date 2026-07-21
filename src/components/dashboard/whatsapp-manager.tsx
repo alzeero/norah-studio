@@ -13,10 +13,10 @@ export function WhatsappManager({ settings }: { settings: SiteSettings }) {
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
 
-  const [phone, setPhone] = useState(settings.whatsapp_phone);
-  const [message, setMessage] = useState(settings.whatsapp_message);
-  const [instagramUrl, setInstagramUrl] = useState(settings.instagram_url);
-  const [tiktokUrl, setTiktokUrl] = useState(settings.tiktok_url);
+  const [phone, setPhone] = useState(settings.whatsapp_phone ?? "");
+  const [message, setMessage] = useState(settings.whatsapp_message ?? "");
+  const [instagramUrl, setInstagramUrl] = useState(settings.instagram_url ?? "");
+  const [tiktokUrl, setTiktokUrl] = useState(settings.tiktok_url ?? "");
 
   function handleSubmit(e: FormEvent) {
     e.preventDefault();
