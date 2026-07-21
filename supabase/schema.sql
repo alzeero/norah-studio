@@ -48,7 +48,7 @@ create table if not exists public.site_settings (
   hero_image_url text,
   whatsapp_phone text not null default '',
   whatsapp_message text not null default '',
-  default_theme text not null default 'light' check (default_theme in ('light', 'dark')),
+  default_theme text not null default 'system' check (default_theme in ('light', 'dark', 'system')),
   updated_at timestamptz not null default now(),
   constraint site_settings_singleton check (id = 1)
 );
@@ -65,7 +65,7 @@ values (
   'NORAH STUDIO',
   'Photography & Videography',
   E'مرحبًا بك في NORAH | STUDIO 🤍\n\nحيث تتحول اللحظات إلى صور تُحكى.\n\nشكرًا لتواصلك معنا، ونتشرف بتوثيق أجمل لحظاتكم.\n\nأرغب في حجز جلسة تصوير.',
-  'light'
+  'system'
 )
 on conflict (id) do nothing;
 
