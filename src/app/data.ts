@@ -11,6 +11,8 @@ const DEFAULT_SETTINGS: SiteSettings = {
   whatsapp_phone: "",
   whatsapp_message:
     "مرحبًا بك في NORAH | STUDIO 🤍\n\nحيث تتحول اللحظات إلى صور تُحكى.\n\nشكرًا لتواصلك معنا، ونتشرف بتوثيق أجمل لحظاتكم.\n\nأرغب في حجز جلسة تصوير.",
+  instagram_url: "",
+  tiktok_url: "",
   default_theme: "system",
   updated_at: new Date().toISOString(),
 };
