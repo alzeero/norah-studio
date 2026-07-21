@@ -2,7 +2,8 @@
 
 import { useRef, useState, useTransition, type FormEvent } from "react";
 import Image from "next/image";
-import { updateHeroText, updateHeroImage } from "@/lib/actions/content";
+import { updateHeroText, updateHeroImageRecord } from "@/lib/actions/content";
+import { uploadImageToStorage, removeImageFromStorage } from "@/lib/upload-image";
 import { Input, Label, FieldError, FieldSuccess } from "@/components/ui/form-fields";
 import { Button } from "@/components/ui/button";
 import type { SiteSettings } from "@/lib/types";
@@ -38,16 +39,30 @@ export function HeroManager({ settings }: { settings: SiteSettings }) {
     run(() => updateHeroText({ hero_title: title, hero_subtitle: subtitle }), "تم تحديث النص بنجاح.");
   }
 
-  function handleImageSubmit(e: FormEvent<HTMLFormElement>) {
+  async function handleImageSubmit(e: FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const file = fileInputRef.current?.files?.[0];
     if (!file) {
       setError("يرجى اختيار صورة أولاً.");
       return;
     }
-    const formData = new FormData();
-    formData.set("file", file);
-    run(() => updateHeroImage(formData), "تم تحديث الصورة بنجاح.");
+
+    setError(null);
+    setSuccess(null);
+    setBusy(true);
+
+    let uploaded: { path: string; url: string } | null = null;
+    try {
+      uploaded = await uploadImageToStorage(file, "hero");
+      await updateHeroImageRecord({ storage_path: uploaded.path, url: uploaded.url });
+      setSuccess("تم تحديث الصورة بنجاح.");
+      if (fileInputRef.current) fileInputRef.current.value = "";
+    } catch (err) {
+      if (uploaded) await removeImageFromStorage(uploaded.path).catch(() => {});
+      setError(err instanceof Error ? err.message : "حدث خطأ ما.");
+    } finally {
+      setBusy(false);
+    }
   }
 
   return (
@@ -76,7 +91,9 @@ export function HeroManager({ settings }: { settings: SiteSettings }) {
 
       <section>
         <h2 className="text-heading font-medium">صورة الواجهة الرئيسية</h2>
-        <p className="mt-1 text-sm text-fg-muted">الصورة الكبيرة بعرض الشاشة خلف نص الواجهة الرئيسية.</p>
+        <p className="mt-1 text-sm text-fg-muted">
+          الصورة الكبيرة بعرض الشاشة خلف نص الواجهة الرئيسية. تُرفع بجودتها الأصلية بالكامل.
+        </p>
 
         {settings.hero_image_url && (
           <div className="relative mt-4 aspect-video max-w-md overflow-hidden rounded-lg border border-border">

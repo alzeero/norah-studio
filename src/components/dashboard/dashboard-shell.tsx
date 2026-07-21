@@ -9,7 +9,7 @@ import { HeroManager } from "./hero-manager";
 import { TestimonialsManager } from "./testimonials-manager";
 import { WhatsappManager } from "./whatsapp-manager";
 import { SettingsManager } from "./settings-manager";
-import type { Category, GalleryImage, SiteSettings, Testimonial } from "@/lib/types";
+import type { GalleryImage, SiteSettings, Testimonial } from "@/lib/types";
 import { cn } from "@/lib/utils";
 
 type Tab = "gallery" | "hero" | "testimonials" | "whatsapp" | "settings";
@@ -23,12 +23,10 @@ const TABS: { id: Tab; label: string; icon: typeof Images }[] = [
 ];
 
 export function DashboardShell({
-  categories,
   images,
   testimonials,
   settings,
 }: {
-  categories: Category[];
   images: GalleryImage[];
   testimonials: Testimonial[];
   settings: SiteSettings;
@@ -106,7 +104,7 @@ export function DashboardShell({
         </nav>
 
         <main className="w-full min-w-0 flex-1">
-          {tab === "gallery" && <GalleryManager categories={categories} images={images} />}
+          {tab === "gallery" && <GalleryManager images={images} />}
           {tab === "hero" && <HeroManager settings={settings} />}
           {tab === "testimonials" && <TestimonialsManager testimonials={testimonials} />}
           {tab === "whatsapp" && <WhatsappManager settings={settings} />}
