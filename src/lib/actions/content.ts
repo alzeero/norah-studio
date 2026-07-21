@@ -9,10 +9,14 @@ const BUCKET = "media";
 
 async function requireAdmin() {
   const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-  if (!user) {
+  const { data, error } = await supabase.auth.getUser();
+  if (error) {
+    console.error("[requireAdmin] auth.getUser() returned an error:", {
+      message: error.message,
+      status: error.status,
+    });
+  }
+  if (!data.user) {
     throw new Error("يجب تسجيل الدخول للقيام بذلك.");
   }
   return supabase;

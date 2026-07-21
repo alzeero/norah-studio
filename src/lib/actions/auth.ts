@@ -2,10 +2,45 @@
 
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
+import { supabaseUrl } from "@/lib/supabase/env";
 
 export type SignInState = { error: string | null };
 
 type SignInError = { message: string; status?: number };
+
+/**
+ * Makes a raw, SDK-independent request to the Supabase project's own base
+ * URL. This is what actually traces a network failure to a specific layer
+ * instead of guessing at the cause:
+ *
+ *   - If this ALSO fails, the problem is the URL/DNS/the Supabase project
+ *     itself (paused, deleted, wrong ref) — nothing in this codebase can
+ *     fix that; it has to be corrected in Vercel/Supabase directly.
+ *   - If this SUCCEEDS while signInWithPassword still fails, the problem is
+ *     specific to the Supabase Auth client/library, not basic connectivity
+ *     — a genuinely different, narrower bug to chase.
+ */
+async function probeSupabaseConnectivity(): Promise<string> {
+  try {
+    const res = await fetch(supabaseUrl, {
+      method: "HEAD",
+      cache: "no-store",
+      signal: AbortSignal.timeout(8000),
+    });
+    return (
+      `تم الوصول فعليًا إلى ${supabaseUrl} (رمز الاستجابة ${res.status}) — أي أن الرابط يعمل ` +
+      `ويستجيب، فالمشكلة ليست في NEXT_PUBLIC_SUPABASE_URL نفسه ولا في كون المشروع متوقفًا، بل في ` +
+      `طلب تسجيل الدخول تحديدًا.`
+    );
+  } catch (thrown) {
+    const detail = thrown instanceof Error ? thrown.message : String(thrown);
+    return (
+      `تعذّر الوصول إلى ${supabaseUrl} مباشرة أيضًا (${detail}) — هذا يؤكد أن المشكلة هي الرابط نفسه ` +
+      `(تحقّقي من تطابقه حرفيًا مع Project URL في Supabase) أو أن مشروع Supabase متوقف مؤقتًا ` +
+      `(Paused)، وليست خللاً في الكود.`
+    );
+  }
+}
 
 /**
  * Signs the studio's single admin account in. There is no public sign-up —
@@ -27,32 +62,27 @@ export async function signIn(_prevState: SignInState, formData: FormData): Promi
     const result = await supabase.auth.signInWithPassword({ email, password });
     error = result.error;
   } catch (thrown) {
-    // A network-level failure (DNS, TLS, connection refused, timeout) throws
-    // instead of returning a normal { error } result — this is what
-    // "fetch failed" is: the request never reached Supabase at all.
+    // A genuinely thrown exception — the request never completed at all.
     const message = thrown instanceof Error ? thrown.message : String(thrown);
-    console.error("[auth/signIn] Network error reaching Supabase:", message);
-    return {
-      error:
-        "تعذّر الاتصال بـ Supabase (خطأ في الشبكة). تحقّقي من أن مشروع Supabase ليس متوقفًا " +
-        "مؤقتًا (Paused) في لوحة تحكم Supabase، ومن أن NEXT_PUBLIC_SUPABASE_URL في Vercel مطابق " +
-        `تمامًا لقيمة Project URL في Supabase. (${message})`,
-    };
+    console.error("[auth/signIn] signInWithPassword threw:", message);
+    error = { message };
   }
 
   if (error) {
-    // Log the full, real reason server-side — visible in Vercel's function
-    // logs — instead of only ever surfacing one generic message.
     console.error("[auth/signIn] Supabase returned an error:", {
       message: error.message,
       status: error.status,
-      code: (error as { code?: string }).code,
     });
 
-    const code = (error as { code?: string }).code;
     const message = error.message.toLowerCase();
 
-    if (code === "email_not_confirmed" || message.includes("email not confirmed")) {
+    if (message.includes("fetch failed") || message.includes("network") || message.includes("timeout")) {
+      const probe = await probeSupabaseConnectivity();
+      console.error("[auth/signIn] Connectivity probe result:", probe);
+      return { error: `تعذّر الاتصال بـ Supabase أثناء تسجيل الدخول. ${probe}` };
+    }
+
+    if (message.includes("email not confirmed")) {
       return {
         error: "لم يتم تأكيد البريد الإلكتروني لهذا الحساب بعد. تحقّقي منه في Supabase ← Authentication ← Users.",
       };
@@ -65,27 +95,15 @@ export async function signIn(_prevState: SignInState, formData: FormData): Promi
       };
     }
 
-    if (message.includes("fetch failed") || message.includes("network")) {
-      return {
-        error:
-          "تعذّر الاتصال بـ Supabase (خطأ في الشبكة). تحقّقي من أن المشروع ليس متوقفًا مؤقتًا، " +
-          "ومن صحة NEXT_PUBLIC_SUPABASE_URL في Vercel.",
-      };
-    }
-
-    if (code === "invalid_credentials" || message.includes("invalid login credentials")) {
+    if (message.includes("invalid login credentials")) {
       // Supabase intentionally returns this exact message both when the
       // password is wrong AND when no user with this email exists at all
       // (an anti-enumeration measure) — so this can also mean the account
       // was created in a different Supabase project than the one this app
-      // is actually connected to. Worth checking NEXT_PUBLIC_SUPABASE_URL in
-      // Vercel against the Project URL of the project the user actually
-      // lives in.
+      // is actually connected to.
       return { error: "البريد الإلكتروني أو كلمة المرور غير صحيحة." };
     }
 
-    // Anything else — wrong API key, rate limit, disabled project, etc. —
-    // surface it directly instead of mislabeling it as a credentials issue.
     return { error: `فشل تسجيل الدخول: ${error.message}` };
   }
 
