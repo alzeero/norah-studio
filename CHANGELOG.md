@@ -372,6 +372,44 @@ supabase/migration_add_social_links.sql          (new)
 
 ---
 
+## Ninth pass — remove phone from contact section, fix social-link save bug, real iPhone form-field fix
+
+### 1. Contact section — icons only, no phone number
+
+**`src/components/site/whatsapp-section.tsx`** — phone number display removed entirely; only the Instagram/TikTok icons remain below the button, each still only rendered when its URL is set.
+
+### 2. Social links save bug — closed the gap between the type and reality
+
+**`src/lib/data.ts`** — `getSiteSettings` previously returned the database row as-is, trusting it matched `SiteSettings` exactly. If `instagram_url`/`tiktok_url` are absent from a row (e.g. a migration adding those columns hasn't been run against this specific database yet), the row simply doesn't have those keys — not `null`, genuinely missing — which silently broke the type's promise that they're always strings. `getSiteSettings` now explicitly coalesces every field to a guaranteed-valid value before returning.
+
+**`src/lib/actions/content.ts`** — `updateWhatsappSettings` now detects a Postgres "column does not exist" error (code `42703`) specifically and returns a clear message naming `supabase/migration_add_social_links.sql`, instead of a generic database error.
+
+**`src/components/dashboard/whatsapp-manager.tsx`** — the four `useState` initializers now fall back to `""` if `settings` is ever missing a field, as a second layer of defense on top of the server-side fix.
+
+If saving still fails after this, please confirm directly in Supabase's Table Editor that `site_settings` actually has `instagram_url` and `tiktok_url` columns — that's the one thing I can't verify from here.
+
+### 3. Dashboard on iPhone — the actual remaining cause
+
+Found a concrete, iOS-Safari-specific issue that would make an already-correctly-laid-out form still feel broken on an iPhone specifically: **iOS Safari automatically zooms the entire page in whenever a focused input's font-size is under 16px.** Every field in the dashboard was `text-sm` (14px) — meaning tapping into any field, on every tab, triggered an unwanted zoom. That's not a layout bug, but it would absolutely make the dashboard feel non-native regardless of how correct the surrounding layout is.
+
+- **`src/components/ui/form-fields.tsx`** — every `Input`/`Textarea`/`Select` is now `text-base` (16px) on mobile, reverting to the original `text-sm` from the `sm:` breakpoint up — desktop appearance is unchanged, the iOS zoom trigger is gone.
+- **`src/app/globals.css`, `dashboard-shell.tsx`, `admin/login/page.tsx`** — added a `.dashboard-root`-scoped reset (`-webkit-appearance: none` + transparent tap highlight) so iOS Safari's own default form-control chrome stops fighting with the custom styling. Scoped specifically to the dashboard/login (via a `dashboard-root` class added to their root elements) rather than applied globally, since the public site has no native form controls for this to affect in the first place — kept fully separate from public site styling as requested.
+
+### Files changed this pass
+
+```
+src/components/site/whatsapp-section.tsx
+src/lib/data.ts
+src/lib/actions/content.ts
+src/components/dashboard/whatsapp-manager.tsx
+src/components/ui/form-fields.tsx
+src/app/globals.css
+src/components/dashboard/dashboard-shell.tsx
+src/app/admin/login/page.tsx
+```
+
+---
+
 ## Sixth pass — theme follows system preference, single-client architecture, WhatsApp button
 
 ### 1. Floating WhatsApp button
