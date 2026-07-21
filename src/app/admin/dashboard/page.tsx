@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { createClient } from "@/lib/supabase/server";
-import { getSiteData } from "@/lib/data";
+import { getCategories, getGalleryImages, getTestimonials, getSiteSettings } from "@/lib/data";
 import { DashboardShell } from "@/components/dashboard/dashboard-shell";
 import type { Category, GalleryImage, Testimonial, SiteSettings } from "@/lib/types";
 
@@ -13,18 +13,16 @@ export const metadata: Metadata = {
 export const dynamic = "force-dynamic";
 
 export default async function DashboardPage() {
+  // Exactly one Supabase client for this entire render — used for the auth
+  // check below AND passed directly into every data read that follows.
+  // Previously each read built its own client independently; with several
+  // running concurrently (Promise.all) that meant several clients each
+  // capable of independently deciding the session needed refreshing at the
+  // same time, which is a real, known way for the second concurrent
+  // refresh to fail (it uses a refresh token the first one already
+  // rotated out). One client removes that possibility outright.
   const supabase = await createClient();
 
-  // auth.getUser() makes a real network call to Supabase to validate the
-  // session — it can itself throw (network hiccup, rate limit) rather than
-  // cleanly returning { user: null }. Distinguishing "the check failed" from
-  // "there's genuinely no session" matters: this route re-executes on the
-  // server after every dashboard save (via revalidatePath + the client
-  // calling router.refresh()), which means getUser() gets called here in
-  // quick succession with the same call already made by middleware and by
-  // the action's own requireAdmin() moments earlier — exactly the pattern
-  // that would surface a transient failure here specifically, right after
-  // saving, rather than on a first cold page load.
   let user;
   try {
     const result = await supabase.auth.getUser();
@@ -36,9 +34,6 @@ export default async function DashboardPage() {
       });
     }
   } catch (thrown) {
-    // Logged in full, not silenced — this still results in a redirect below,
-    // it just also leaves a clear trail of *why* in the server logs instead
-    // of surfacing as an unexplained crash.
     console.error(
       "[dashboard/page] auth.getUser() threw:",
       thrown instanceof Error ? thrown.stack ?? thrown.message : thrown
@@ -55,31 +50,22 @@ export default async function DashboardPage() {
   let settings: SiteSettings | null = null;
 
   try {
-    const data = await getSiteData();
-    categories = data.categories;
-    images = data.images;
-    testimonials = data.testimonials;
-    settings = data.settings;
+    [categories, images, testimonials, settings] = await Promise.all([
+      getCategories(supabase),
+      getGalleryImages(supabase),
+      getTestimonials(supabase),
+      getSiteSettings(supabase),
+    ]);
   } catch (thrown) {
-    // getCategories/getGalleryImages/getTestimonials/getSiteSettings each
-    // already catch their own Supabase errors and fall back to safe empty
-    // values — so reaching this block means something failed *outside*
-    // that per-table handling (createClient() itself, or a genuinely
-    // unexpected exception). Log the full stack, then let it propagate to
-    // the dashboard's error.tsx boundary instead of hiding it — this is
-    // visibility, not suppression: nothing here returns a fake success.
     console.error(
-      "[dashboard/page] getSiteData() threw:",
+      "[dashboard/page] data fetch threw:",
       thrown instanceof Error ? thrown.stack ?? thrown.message : thrown
     );
     throw thrown;
   }
 
   if (!settings) {
-    // Unreachable in practice — the catch above always re-throws — but this
-    // gives both TypeScript and a future reader a concrete guarantee here
-    // instead of relying on try/catch control-flow inference.
-    throw new Error("[dashboard/page] settings unexpectedly null after getSiteData() succeeded.");
+    throw new Error("[dashboard/page] settings unexpectedly null after data fetch succeeded.");
   }
 
   return (
