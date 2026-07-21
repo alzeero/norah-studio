@@ -235,6 +235,103 @@ src/components/dashboard/settings-manager.tsx
 
 ---
 
+## Seventh pass — UI/UX overhaul: logo typography, categories removed, upload architecture fixed, lightbox rebuilt
+
+### 1. Logo typography → Cormorant Garamond
+
+- **`src/app/layout.tsx`** — added `Cormorant_Garamond` via `next/font/google`, exposed as `--font-logo`.
+- **`tailwind.config.ts`, `src/app/globals.css`** — new `font-logo` utility with elegant `letter-spacing: 0.04em`, positioned after the RTL letter-spacing reset so it still applies when the (default) RTL page wraps the English wordmark.
+- **`src/components/site/hero.tsx`** — hero title uses `font-logo` instead of `font-sans` for the Latin case; Arabic case unaffected.
+
+### 2. Gallery categories removed completely
+
+Removed from every layer, not just hidden:
+- **`src/lib/types.ts`** — `Category` type deleted; `category_id` dropped from `GalleryImage`.
+- **`src/lib/data.ts`** — `getCategories` deleted.
+- **`src/lib/actions/content.ts`** — `createCategory`/`renameCategory`/`deleteCategory` deleted; `category_id` removed from the remaining gallery actions.
+- **`src/lib/utils.ts`** — `slugify` deleted (only caller was category creation).
+- **`src/components/site/category-nav.tsx`** — deleted (no longer used).
+- **`src/components/site/portfolio-section.tsx`** — rewritten, just renders the gallery directly.
+- **`src/components/dashboard/gallery-manager.tsx`** — rewritten without the categories section or the category select in the upload/edit forms.
+- **`src/lib/i18n.ts`** — unused `categories.all` string removed; the `categories` key itself renamed to `portfolio` (it was always just the section label, not related to the filter feature — the name was just confusingly left over).
+- **`supabase/schema.sql`** — `categories` table, `gallery_images.category_id` column, related indexes and RLS policies all removed from the fresh-install schema.
+- **`supabase/migration_remove_categories.sql`** *(new)* — optional: drops the now-unused table/column from an already-existing database. The app works correctly whether or not you run this.
+
+### 3. Upload architecture — fixed a real problem, not just "no compression"
+
+Discovered while implementing "accept large uploads safely": **Vercel Functions have a hard 4.5MB request body limit that no Next.js config can raise.** Every upload — a real 4K photo — would have failed in production regardless of any `bodySizeLimit` setting, since that limit is enforced by Vercel's platform in front of the function, not by Next.js itself.
+
+- **`src/lib/upload-image.ts`** *(new)* — uploads the file directly from the browser to Supabase Storage using the existing browser Supabase client, bypassing Vercel's request pipeline (and its 4.5MB limit) entirely. The file is handed to Supabase exactly as selected — no resizing, no compression, at any point.
+- **`src/lib/actions/content.ts`** — `uploadGalleryImage`/`updateHeroImage` (which took the file itself) replaced with `createGalleryImageRecord`/`updateHeroImageRecord`, which take only the resulting `{storage_path, url}` plus caption — tiny payloads, nowhere near any size limit.
+- **`src/components/dashboard/gallery-manager.tsx`, `hero-manager.tsx`** — upload handlers rewritten around this: upload to storage first, then write the tiny metadata record; if the metadata write fails, the just-uploaded file is cleaned up so nothing is orphaned in the bucket.
+
+### 4. Lightbox rebuilt
+
+**`src/components/site/lightbox.tsx`** — fullscreen image (`fill` + `object-contain` inside a 94vh/96vw frame instead of the previous ~85vh cap); background changed from a flat dark overlay to `backdrop-blur-2xl` over a semi-transparent black, so the page behind reads as heavily blurred rather than just dark; close button enlarged with its own solid circular background so it's never hard to see against a bright photo; prev/next arrows enlarged the same way; swipe-to-navigate added via Framer Motion's drag gesture (`drag="x"` + `onDragEnd` offset detection) for mobile, on top of the existing keyboard arrows.
+
+### 5. Contact section, footer, floating button, hero CTA
+
+- **`src/components/site/whatsapp-section.tsx`** — removed the extra sentence, kept only the two requested lines; CTA button switched from gold to official WhatsApp green (`#25D366`, with a `#1DA851` hover/pressed shade — added as a `whatsapp` color in `tailwind.config.ts`).
+- **`src/components/site/floating-whatsapp.tsx`** — rewritten: WhatsApp green, and now watches the contact section with an `IntersectionObserver` to fade itself out once that section (which has its own large CTA) scrolls into view, fading back in once it scrolls back out.
+- **`src/components/site/footer.tsx`** — new tagline text; phone number now displayed next to it, formatted for local reading (`formatLocalPhone` in `src/lib/utils.ts`) and derived from the same WhatsApp number set in the dashboard rather than a second, separately-hardcoded value.
+- **`src/components/site/hero.tsx`** — CTA now scrolls to `#portfolio` instead of `#book`.
+- **`src/app/globals.css`** — added `[id] { scroll-margin-top: 96px }` globally, so anchor-scrolling to any section (portfolio, testimonials, contact) lands below the fixed header instead of tucking the heading underneath it.
+- **`src/components/site/section-heading.tsx`** — eyebrow is now optional (skips rendering when empty), used to show testimonials as a single heading ("آراء العملاء") instead of a small eyebrow plus a separate large heading.
+
+### 6. Lazy-load blur placeholder
+
+**`src/components/site/lazy-image.tsx`** *(new)* — wraps `next/image` with a soft blurred placeholder that fades out on load. `next/image` already lazy-loads below-the-fold images by default; this only adds the visual loading state on top, with no effect on the delivered image's resolution or quality. Used in `src/components/site/gallery.tsx`. The hero image intentionally keeps its existing `priority` (eager) loading — lazy-loading doesn't apply to an above-the-fold image.
+
+### Re-verified, unchanged
+
+Sticky header (`navbar.tsx`'s scroll-triggered background), automatic system theme (`enableSystem` + `defaultTheme="system"` in `providers.tsx`) — both were already correct from earlier passes and didn't need further changes; confirmed by re-reading the current code, not re-implemented.
+
+### Integration fixes (required for the above to actually compile)
+
+Removing categories touched shared types used across the app — these three files needed updating to match, or the project wouldn't build:
+- **`src/app/page.tsx`** — stopped passing `categories` to `PortfolioSection`; now passes `settings` to `Footer`.
+- **`src/app/admin/dashboard/page.tsx`** — stopped fetching/passing categories.
+- **`src/components/dashboard/dashboard-shell.tsx`** — stopped accepting/forwarding a `categories` prop.
+
+### Files changed this pass
+
+```
+tailwind.config.ts
+src/app/layout.tsx
+src/app/globals.css
+src/app/page.tsx
+src/app/admin/dashboard/page.tsx
+src/lib/types.ts
+src/lib/data.ts
+src/lib/utils.ts
+src/lib/i18n.ts
+src/lib/actions/content.ts
+src/lib/upload-image.ts                          (new)
+src/components/site/hero.tsx
+src/components/site/footer.tsx
+src/components/site/whatsapp-section.tsx
+src/components/site/floating-whatsapp.tsx
+src/components/site/section-heading.tsx
+src/components/site/portfolio-section.tsx
+src/components/site/lightbox.tsx
+src/components/site/gallery.tsx
+src/components/site/lazy-image.tsx               (new)
+src/components/dashboard/dashboard-shell.tsx
+src/components/dashboard/gallery-manager.tsx
+src/components/dashboard/hero-manager.tsx
+supabase/schema.sql
+supabase/migration_remove_categories.sql         (new)
+README.md
+```
+
+### Deleted
+
+```
+src/components/site/category-nav.tsx
+```
+
+---
+
 ## Sixth pass — theme follows system preference, single-client architecture, WhatsApp button
 
 ### 1. Floating WhatsApp button

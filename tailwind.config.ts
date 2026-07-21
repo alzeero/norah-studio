@@ -16,10 +16,15 @@ const config: Config = {
           soft: "hsl(var(--gold-soft) / <alpha-value>)",
         },
         border: "hsl(var(--border) / <alpha-value>)",
+        whatsapp: {
+          DEFAULT: "#25D366",
+          deep: "#1DA851",
+        },
       },
       fontFamily: {
         sans: ["var(--font-sans)", "ui-sans-serif", "system-ui", "sans-serif"],
         arabic: ["var(--font-arabic)", "ui-sans-serif", "system-ui", "sans-serif"],
+        logo: ["var(--font-logo)", "Georgia", "serif"],
       },
       fontSize: {
         "display-lg": ["clamp(2.75rem, 3rem + 3vw, 5.5rem)", { lineHeight: "1.02", letterSpacing: "-0.02em" }],
