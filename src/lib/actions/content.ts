@@ -1,9 +1,7 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
-import { randomUUID } from "crypto";
 import { createClient } from "@/lib/supabase/server";
-import { slugify } from "@/lib/utils";
 
 const BUCKET = "media";
 
@@ -29,7 +27,7 @@ function revalidateAll() {
 
 async function nextSortOrder(
   supabase: Awaited<ReturnType<typeof createClient>>,
-  table: "categories" | "gallery_images" | "testimonials"
+  table: "gallery_images" | "testimonials"
 ) {
   const { data } = await supabase
     .from(table)
@@ -40,85 +38,29 @@ async function nextSortOrder(
 }
 
 // ---------------------------------------------------------------------------
-// Categories
-// ---------------------------------------------------------------------------
-
-export async function createCategory(name: string) {
-  const trimmed = name.trim();
-  if (!trimmed) throw new Error("اسم الفئة مطلوب.");
-  const supabase = await requireAdmin();
-  const sort_order = await nextSortOrder(supabase, "categories");
-  const { error } = await supabase
-    .from("categories")
-    .insert({ name: trimmed, slug: slugify(trimmed) || randomUUID().slice(0, 8), sort_order });
-  if (error) throw new Error(error.message);
-  revalidateAll();
-}
-
-export async function renameCategory(id: string, name: string) {
-  const trimmed = name.trim();
-  if (!trimmed) throw new Error("اسم الفئة مطلوب.");
-  const supabase = await requireAdmin();
-  const { error } = await supabase
-    .from("categories")
-    .update({ name: trimmed, slug: slugify(trimmed) })
-    .eq("id", id);
-  if (error) throw new Error(error.message);
-  revalidateAll();
-}
-
-export async function deleteCategory(id: string) {
-  const supabase = await requireAdmin();
-  const { error } = await supabase.from("categories").delete().eq("id", id);
-  if (error) throw new Error(error.message);
-  revalidateAll();
-}
-
-// ---------------------------------------------------------------------------
 // Gallery images
+//
+// The file itself is uploaded directly from the browser straight to
+// Supabase Storage (see src/lib/upload-image.ts) — Vercel Functions have a
+// hard 4.5MB request body limit that no Next.js config can raise, so
+// routing full-resolution photography through a Server Action would fail
+// for any real photo. These actions only ever receive the resulting
+// metadata (path + URL), never the file, keeping every request tiny.
 // ---------------------------------------------------------------------------
 
-export async function uploadGalleryImage(formData: FormData) {
+export async function createGalleryImageRecord(data: {
+  storage_path: string;
+  url: string;
+  caption: string | null;
+}) {
   const supabase = await requireAdmin();
-  const file = formData.get("file") as File | null;
-  const categoryId = (formData.get("category_id") as string) || null;
-  const caption = (formData.get("caption") as string) || null;
-
-  if (!file || file.size === 0) throw new Error("يرجى اختيار صورة للرفع.");
-
-  const ext = file.name.split(".").pop() || "jpg";
-  const path = `gallery/${randomUUID()}.${ext}`;
-
-  const { error: uploadError } = await supabase.storage.from(BUCKET).upload(path, file, {
-    cacheControl: "31536000",
-    upsert: false,
-    contentType: file.type || undefined,
-  });
-  if (uploadError) throw new Error(uploadError.message);
-
-  const { data: urlData } = supabase.storage.from(BUCKET).getPublicUrl(path);
   const sort_order = await nextSortOrder(supabase, "gallery_images");
-
-  const { error: insertError } = await supabase.from("gallery_images").insert({
-    category_id: categoryId,
-    storage_path: path,
-    url: urlData.publicUrl,
-    caption,
-    sort_order,
-  });
-
-  if (insertError) {
-    await supabase.storage.from(BUCKET).remove([path]);
-    throw new Error(insertError.message);
-  }
-
+  const { error } = await supabase.from("gallery_images").insert({ ...data, sort_order });
+  if (error) throw new Error(error.message);
   revalidateAll();
 }
 
-export async function updateGalleryImage(
-  id: string,
-  updates: { category_id?: string | null; caption?: string | null }
-) {
+export async function updateGalleryImage(id: string, updates: { caption?: string | null }) {
   const supabase = await requireAdmin();
   const { error } = await supabase.from("gallery_images").update(updates).eq("id", id);
   if (error) throw new Error(error.message);
@@ -202,28 +144,13 @@ export async function updateHeroText(data: { hero_title: string; hero_subtitle: 
   revalidateAll();
 }
 
-export async function updateHeroImage(formData: FormData) {
+export async function updateHeroImageRecord(data: { storage_path: string; url: string }) {
   const supabase = await requireAdmin();
-  const file = formData.get("file") as File | null;
-  if (!file || file.size === 0) throw new Error("يرجى اختيار صورة للرفع.");
-
-  const ext = file.name.split(".").pop() || "jpg";
-  const path = `hero/${randomUUID()}.${ext}`;
-
-  const { error: uploadError } = await supabase.storage.from(BUCKET).upload(path, file, {
-    cacheControl: "31536000",
-    upsert: false,
-    contentType: file.type || undefined,
-  });
-  if (uploadError) throw new Error(uploadError.message);
-
-  const { data: urlData } = supabase.storage.from(BUCKET).getPublicUrl(path);
-
   const { error } = await supabase
     .from("site_settings")
     .update({
-      hero_image_path: path,
-      hero_image_url: urlData.publicUrl,
+      hero_image_path: data.storage_path,
+      hero_image_url: data.url,
       updated_at: new Date().toISOString(),
     })
     .eq("id", 1);
