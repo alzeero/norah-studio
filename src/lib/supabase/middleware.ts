@@ -24,13 +24,32 @@ export async function updateSession(request: NextRequest) {
     },
   });
 
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
-
   const isDashboardRoute = request.nextUrl.pathname.startsWith("/admin/dashboard");
 
-  if (isDashboardRoute && !user) {
+  let isAuthenticated = false;
+  try {
+    const result = await supabase.auth.getUser();
+    isAuthenticated = result.data.user !== null;
+    if (result.error) {
+      console.error("[middleware] auth.getUser() returned an error:", result.error.message);
+    }
+  } catch (thrown) {
+    console.error(
+      "[middleware] auth.getUser() threw:",
+      thrown instanceof Error ? thrown.message : thrown
+    );
+    // Fail closed on dashboard routes (send to login, don't crash the
+    // middleware invocation) — visible via the redirect and the log line
+    // above, not a silent pass-through.
+    if (isDashboardRoute) {
+      const loginUrl = request.nextUrl.clone();
+      loginUrl.pathname = "/admin/login";
+      return NextResponse.redirect(loginUrl);
+    }
+    return supabaseResponse;
+  }
+
+  if (isDashboardRoute && !isAuthenticated) {
     const loginUrl = request.nextUrl.clone();
     loginUrl.pathname = "/admin/login";
     return NextResponse.redirect(loginUrl);

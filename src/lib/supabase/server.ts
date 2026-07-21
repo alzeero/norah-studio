@@ -1,17 +1,22 @@
-import { cache } from "react";
 import { createServerClient, type CookieOptions } from "@supabase/ssr";
 import { cookies } from "next/headers";
 import { supabaseUrl, supabaseAnonKey } from "./env";
 
 /**
  * Supabase client for Server Components, Server Actions, and the dashboard
- * page. Wrapped in React's `cache()` so that within a single request every
- * caller — getCategories, getGalleryImages, getTestimonials,
- * getSiteSettings, every Server Action, the dashboard page — shares one
- * client and one cookie read instead of each constructing its own. That's
- * what removes the duplicate-client fan-out that existed before.
+ * page.
+ *
+ * This used to be wrapped in React's `cache()` to dedupe repeated calls
+ * within one request. That's reverted here: `cache()`'s memoization is
+ * scoped to a React render pass, and Server Actions run as a separate
+ * invocation from the render they trigger afterward (via revalidatePath /
+ * router.refresh()) — mixing the two is a plausible, hard-to-verify-without-
+ * running-it source of the exact "Server Components render" errors that
+ * were showing up specifically after saving. A fresh client per call is the
+ * simpler, unambiguous, well-established pattern; the cost is a few extra
+ * (cheap) client constructions per request, not a functional difference.
  */
-export const createClient = cache(async () => {
+export async function createClient() {
   const cookieStore = await cookies();
 
   return createServerClient(supabaseUrl, supabaseAnonKey, {
@@ -32,4 +37,4 @@ export const createClient = cache(async () => {
       },
     },
   });
-});
+}
