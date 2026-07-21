@@ -45,10 +45,10 @@ export function Providers({
   defaultTheme,
 }: {
   children: React.ReactNode;
-  defaultTheme: "light" | "dark";
+  defaultTheme: "light" | "dark" | "system";
 }) {
   return (
-    <NextThemesProvider attribute="class" defaultTheme={defaultTheme} enableSystem={false}>
+    <NextThemesProvider attribute="class" defaultTheme={defaultTheme} enableSystem>
       <LanguageProvider>{children}</LanguageProvider>
     </NextThemesProvider>
   );
