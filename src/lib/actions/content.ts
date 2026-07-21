@@ -169,7 +169,16 @@ export async function updateWhatsappSettings(data: {
     .from("site_settings")
     .update({ ...data, updated_at: new Date().toISOString() })
     .eq("id", 1);
-  if (error) throw new Error(error.message);
+  if (error) {
+    console.error("[updateWhatsappSettings] update failed:", { message: error.message, code: error.code });
+    if (error.code === "42703" || error.message.toLowerCase().includes("column")) {
+      throw new Error(
+        "قاعدة البيانات لا تحتوي بعد على أعمدة إنستغرام/تيك توك. شغّلي ملف " +
+          "supabase/migration_add_social_links.sql مرة واحدة في Supabase ثم أعيدي المحاولة."
+      );
+    }
+    throw new Error(error.message);
+  }
   revalidateAll();
 }
 
