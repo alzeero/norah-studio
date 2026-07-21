@@ -332,6 +332,46 @@ src/components/site/category-nav.tsx
 
 ---
 
+## Eighth pass — contact section refinements, social links, footer cleanup
+
+### Contact section
+
+- **`src/lib/i18n.ts`** — heading text matched exactly as specified (removed a diacritic to match precisely); CTA button text changed from "تواصل عبر واتساب" to "ابدأ المحادثة" (and the English equivalent updated to match in tone).
+- **`src/components/site/whatsapp-section.tsx`** — phone number now shown as "📞 0534101445" (local format via the existing `formatLocalPhone` helper) instead of the previous "+966…" international format with a WhatsApp icon; Instagram and TikTok icons added below it, each rendered only when its URL is set in the dashboard, each opening in a new tab, icon-only with no label text.
+- **`src/components/site/instagram-icon.tsx`, `tiktok-icon.tsx`** *(new)* — inline SVG brand icons (no new package dependency): Instagram built from basic shapes (rounded square + circle + dot — the standard monochrome line-art form of the mark); TikTok as a single note-and-disc path. Both render in `currentColor` so they pick up the site's palette (white on this dark section, gold on hover).
+
+### Dashboard
+
+- **`src/lib/types.ts`, `data.ts`, `actions/content.ts`** — added `instagram_url`/`tiktok_url` to `SiteSettings`; `updateWhatsappSettings` extended to save them alongside the existing WhatsApp fields.
+- **`src/components/dashboard/whatsapp-manager.tsx`** — added "روابط السوشيال ميديا" fields (Instagram URL, TikTok URL) under the existing WhatsApp section, same form, same save action. Leaving a field empty hides that icon on the site — no code change ever required.
+- **`supabase/schema.sql`** — two new columns on `site_settings`, both defaulting to `''`.
+- **`supabase/migration_add_social_links.sql`** *(new)* — for an already-existing database: adds the two columns. Optional for brand-new setups, since the updated `schema.sql` already includes them.
+
+### Footer
+
+- **`src/components/site/footer.tsx`** — logo enlarged from `h-8` (32px) to `h-[2.4rem]` (38.4px, exactly +20%); phone number and any WhatsApp-related element removed entirely — the phone number now appears exactly once on the whole site, inside the contact section; content replaced with the tagline "تصوير فوتوغرافي" and, beneath it, "حيث تتحول اللحظات إلى صور تُحكى"; copyright line unchanged (`© {year} Norah Abdullah Studio — جميع الحقوق محفوظة`, computed dynamically so it reads 2026 today and stays correct in future years without further edits).
+- **`src/lib/i18n.ts`** — added `footer.subtitle` for the new second line.
+- **`src/app/page.tsx`** — `Footer` no longer takes a `settings` prop (it doesn't use anything from it anymore).
+
+### Files changed this pass
+
+```
+src/lib/types.ts
+src/lib/data.ts
+src/lib/i18n.ts
+src/lib/actions/content.ts
+src/app/page.tsx
+src/components/site/whatsapp-section.tsx
+src/components/site/footer.tsx
+src/components/site/instagram-icon.tsx           (new)
+src/components/site/tiktok-icon.tsx              (new)
+src/components/dashboard/whatsapp-manager.tsx
+supabase/schema.sql
+supabase/migration_add_social_links.sql          (new)
+```
+
+---
+
 ## Sixth pass — theme follows system preference, single-client architecture, WhatsApp button
 
 ### 1. Floating WhatsApp button
