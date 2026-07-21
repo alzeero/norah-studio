@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useTransition, type FormEvent } from "react";
-import { useRouter } from "next/navigation";
 import { Pencil, Trash2, Plus } from "lucide-react";
 import { createTestimonial, updateTestimonial, deleteTestimonial } from "@/lib/actions/content";
 import { Input, Label, Textarea, FieldError } from "@/components/ui/form-fields";
@@ -10,7 +9,6 @@ import { Dialog } from "@/components/ui/dialog";
 import type { Testimonial } from "@/lib/types";
 
 export function TestimonialsManager({ testimonials }: { testimonials: Testimonial[] }) {
-  const router = useRouter();
   const [, startTransition] = useTransition();
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -31,7 +29,6 @@ export function TestimonialsManager({ testimonials }: { testimonials: Testimonia
       try {
         await action();
         onDone?.();
-        router.refresh();
       } catch (e) {
         setError(e instanceof Error ? e.message : "حدث خطأ ما.");
       } finally {
@@ -76,7 +73,7 @@ export function TestimonialsManager({ testimonials }: { testimonials: Testimonia
             <Label htmlFor="t-comment">التعليق</Label>
             <Textarea id="t-comment" value={comment} onChange={(e) => setComment(e.target.value)} />
           </div>
-          <Button type="submit" disabled={busy}>
+          <Button type="submit" disabled={busy} className="w-full sm:w-auto">
             <Plus size={16} /> إضافة الرأي
           </Button>
         </form>
@@ -93,16 +90,16 @@ export function TestimonialsManager({ testimonials }: { testimonials: Testimonia
                 <p className="text-sm font-medium text-gold">{t.customer_name}</p>
                 <p className="mt-1 truncate text-sm text-fg-muted">{t.comment}</p>
               </div>
-              <div className="flex shrink-0 gap-1">
+              <div className="flex shrink-0 gap-1.5">
                 <button
                   onClick={() => openEdit(t)}
-                  className="rounded p-1.5 text-fg-muted hover:bg-gold/10 hover:text-gold"
+                  className="rounded-lg p-2.5 text-fg-muted hover:bg-gold/10 hover:text-gold"
                 >
                   <Pencil size={14} />
                 </button>
                 <button
                   onClick={() => setDeleteTarget(t)}
-                  className="rounded p-1.5 text-fg-muted hover:bg-red-500/10 hover:text-red-500"
+                  className="rounded-lg p-2.5 text-fg-muted hover:bg-red-500/10 hover:text-red-500"
                 >
                   <Trash2 size={14} />
                 </button>
@@ -123,7 +120,7 @@ export function TestimonialsManager({ testimonials }: { testimonials: Testimonia
             <Label htmlFor="edit-t-comment">التعليق</Label>
             <Textarea id="edit-t-comment" value={editComment} onChange={(e) => setEditComment(e.target.value)} />
           </div>
-          <div className="flex justify-end gap-2 pt-2">
+          <div className="flex flex-col-reverse gap-2 pt-2 sm:flex-row sm:justify-end">
             <Button variant="ghost" onClick={() => setEditing(null)}>
               إلغاء
             </Button>
@@ -140,7 +137,7 @@ export function TestimonialsManager({ testimonials }: { testimonials: Testimonia
         title="هل تريدين حذف هذا الرأي؟"
         description="لا يمكن التراجع عن هذا الإجراء."
       >
-        <div className="flex justify-end gap-2">
+        <div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
           <Button variant="ghost" onClick={() => setDeleteTarget(null)}>
             إلغاء
           </Button>

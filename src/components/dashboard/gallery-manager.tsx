@@ -1,7 +1,6 @@
 "use client";
 
 import { useRef, useState, useTransition, type FormEvent } from "react";
-import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { Plus, Trash2, Pencil, ArrowUp, ArrowDown, Upload, X } from "lucide-react";
 import {
@@ -24,7 +23,6 @@ export function GalleryManager({
   categories: Category[];
   images: GalleryImage[];
 }) {
-  const router = useRouter();
   const [, startTransition] = useTransition();
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -48,7 +46,6 @@ export function GalleryManager({
       try {
         await action();
         onDone?.();
-        router.refresh();
       } catch (e) {
         setError(e instanceof Error ? e.message : "حدث خطأ ما.");
       } finally {
@@ -109,14 +106,14 @@ export function GalleryManager({
           أنشئي الفئات التي يمكن للزوار التصفية من خلالها (حفلات الزفاف، بورتريه، عائلي...).
         </p>
 
-        <form onSubmit={handleAddCategory} className="mt-4 flex gap-2">
+        <form onSubmit={handleAddCategory} className="mt-4 flex flex-col gap-2 sm:flex-row">
           <Input
             value={newCategoryName}
             onChange={(e) => setNewCategoryName(e.target.value)}
             placeholder="مثال: حفلات الزفاف"
-            className="max-w-xs"
+            className="w-full sm:max-w-xs"
           />
-          <Button type="submit" size="md" disabled={busy}>
+          <Button type="submit" size="md" disabled={busy} className="w-full sm:w-auto">
             <Plus size={16} /> إضافة
           </Button>
         </form>
@@ -149,7 +146,7 @@ export function GalleryManager({
       {/* Upload */}
       <section>
         <h2 className="text-heading font-medium">رفع صورة</h2>
-        <form onSubmit={handleUpload} className="mt-4 grid gap-4 sm:grid-cols-2">
+        <form onSubmit={handleUpload} className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2">
           <div className="sm:col-span-2">
             <Label htmlFor="file">ملف الصورة</Label>
             <input
@@ -181,7 +178,7 @@ export function GalleryManager({
             <Label htmlFor="upload-caption">وصف الصورة (اختياري)</Label>
             <Input id="upload-caption" value={uploadCaption} onChange={(e) => setUploadCaption(e.target.value)} />
           </div>
-          <Button type="submit" disabled={busy} className="sm:col-span-2 sm:w-fit">
+          <Button type="submit" disabled={busy} className="w-full sm:col-span-2 sm:w-fit">
             <Upload size={16} /> {busy ? "جارٍ الرفع…" : "رفع الصورة"}
           </Button>
         </form>
@@ -192,7 +189,7 @@ export function GalleryManager({
       {/* Existing images */}
       <section>
         <h2 className="text-heading font-medium">المعرض ({images.length})</h2>
-        <div className="mt-4 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {images.map((image, index) => {
             const category = categories.find((c) => c.id === image.category_id);
             return (
@@ -205,12 +202,12 @@ export function GalleryManager({
                     {category?.name ?? "بدون فئة"}
                     {image.caption ? ` · ${image.caption}` : ""}
                   </p>
-                  <div className="flex items-center gap-1">
+                  <div className="flex items-center gap-1.5">
                     <button
                       title="تحريك لأعلى"
                       disabled={index === 0 || busy}
                       onClick={() => run(() => reorderGalleryImage(image.id, "up", image.sort_order))}
-                      className="rounded p-1.5 text-fg-muted hover:bg-gold/10 hover:text-gold disabled:opacity-30"
+                      className="rounded-lg p-2.5 text-fg-muted hover:bg-gold/10 hover:text-gold disabled:opacity-30"
                     >
                       <ArrowUp size={14} />
                     </button>
@@ -218,21 +215,21 @@ export function GalleryManager({
                       title="تحريك لأسفل"
                       disabled={index === images.length - 1 || busy}
                       onClick={() => run(() => reorderGalleryImage(image.id, "down", image.sort_order))}
-                      className="rounded p-1.5 text-fg-muted hover:bg-gold/10 hover:text-gold disabled:opacity-30"
+                      className="rounded-lg p-2.5 text-fg-muted hover:bg-gold/10 hover:text-gold disabled:opacity-30"
                     >
                       <ArrowDown size={14} />
                     </button>
                     <button
                       title="تعديل"
                       onClick={() => openEdit(image)}
-                      className="rounded p-1.5 text-fg-muted hover:bg-gold/10 hover:text-gold"
+                      className="rounded-lg p-2.5 text-fg-muted hover:bg-gold/10 hover:text-gold"
                     >
                       <Pencil size={14} />
                     </button>
                     <button
                       title="حذف"
                       onClick={() => setDeleteTarget(image)}
-                      className="ms-auto rounded p-1.5 text-fg-muted hover:bg-red-500/10 hover:text-red-500"
+                      className="ms-auto rounded-lg p-2.5 text-fg-muted hover:bg-red-500/10 hover:text-red-500"
                     >
                       <Trash2 size={14} />
                     </button>
@@ -265,7 +262,7 @@ export function GalleryManager({
             <Label htmlFor="edit-caption">وصف الصورة</Label>
             <Textarea id="edit-caption" value={editCaption} onChange={(e) => setEditCaption(e.target.value)} />
           </div>
-          <div className="flex justify-end gap-2 pt-2">
+          <div className="flex flex-col-reverse gap-2 pt-2 sm:flex-row sm:justify-end">
             <Button variant="ghost" onClick={() => setEditingImage(null)}>
               إلغاء
             </Button>
@@ -283,7 +280,7 @@ export function GalleryManager({
         title="هل تريدين حذف هذه الصورة؟"
         description="لا يمكن التراجع عن هذا الإجراء. سيتم حذف الملف نهائيًا من التخزين."
       >
-        <div className="flex justify-end gap-2">
+        <div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
           <Button variant="ghost" onClick={() => setDeleteTarget(null)}>
             إلغاء
           </Button>
@@ -309,7 +306,7 @@ export function GalleryManager({
         title={`هل تريدين حذف "${deleteCategoryTarget?.name}"؟`}
         description="ستصبح صور هذه الفئة بدون تصنيف ولن يتم حذفها."
       >
-        <div className="flex justify-end gap-2">
+        <div className="flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
           <Button variant="ghost" onClick={() => setDeleteCategoryTarget(null)}>
             إلغاء
           </Button>

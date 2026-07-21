@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useTransition, type FormEvent } from "react";
-import { useRouter } from "next/navigation";
 import { updateWhatsappSettings } from "@/lib/actions/content";
 import { buildWhatsAppUrl } from "@/lib/utils";
 import { Input, Label, Textarea, FieldError, FieldSuccess } from "@/components/ui/form-fields";
@@ -9,7 +8,6 @@ import { Button } from "@/components/ui/button";
 import type { SiteSettings } from "@/lib/types";
 
 export function WhatsappManager({ settings }: { settings: SiteSettings }) {
-  const router = useRouter();
   const [, startTransition] = useTransition();
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -27,7 +25,6 @@ export function WhatsappManager({ settings }: { settings: SiteSettings }) {
       try {
         await updateWhatsappSettings({ whatsapp_phone: phone, whatsapp_message: message });
         setSuccess("تم تحديث إعدادات واتساب بنجاح.");
-        router.refresh();
       } catch (err) {
         setError(err instanceof Error ? err.message : "حدث خطأ ما.");
       } finally {
@@ -66,7 +63,7 @@ export function WhatsappManager({ settings }: { settings: SiteSettings }) {
             className="min-h-40 font-arabic"
           />
         </div>
-        <Button type="submit" disabled={busy}>
+        <Button type="submit" disabled={busy} className="w-full sm:w-auto">
           حفظ إعدادات واتساب
         </Button>
         <FieldError>{error}</FieldError>

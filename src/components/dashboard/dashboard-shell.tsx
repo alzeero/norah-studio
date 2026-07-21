@@ -45,23 +45,50 @@ export function DashboardShell({
   }, []);
 
   return (
-    <div dir="rtl" className="min-h-screen bg-bg text-fg">
-      <header className="sticky top-0 z-30 flex h-16 items-center justify-between border-b border-border bg-bg-elevated px-5 sm:px-8">
-        <div className="flex items-center gap-3">
-          <Image src="/logo/norah-monogram.png" alt="Norah Studio" width={80} height={52} className="h-6 w-auto" />
-          <span className="text-sm font-medium text-fg-muted">لوحة تحكم الاستوديو</span>
+    <div dir="rtl" className="min-h-screen w-full overflow-x-hidden bg-bg text-fg">
+      <header className="sticky top-0 z-30 flex h-14 items-center justify-between gap-3 border-b border-border bg-bg-elevated px-4 sm:h-16 sm:px-8">
+        <div className="flex min-w-0 items-center gap-3">
+          <Image
+            src="/logo/norah-monogram.png"
+            alt="Norah Studio"
+            width={80}
+            height={52}
+            className="h-5 w-auto shrink-0 sm:h-6"
+          />
+          <span className="hidden truncate text-sm font-medium text-fg-muted sm:inline">لوحة تحكم الاستوديو</span>
         </div>
-        <form action={signOut}>
+        <form action={signOut} className="shrink-0">
           <button
             type="submit"
-            className="flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm text-fg-muted transition-colors hover:text-gold"
+            className="flex items-center gap-1.5 rounded-full px-2.5 py-1.5 text-sm text-fg-muted transition-colors hover:text-gold sm:px-3"
           >
-            <LogOut size={15} /> تسجيل الخروج
+            <LogOut size={15} />
+            <span className="hidden sm:inline">تسجيل الخروج</span>
           </button>
         </form>
       </header>
 
-      <div className="mx-auto flex max-w-6xl gap-8 px-5 py-8 sm:px-8">
+      {/* Mobile tab bar — sticky just below the header, scrolls horizontally
+          if needed instead of ever squeezing/overflowing the page itself. */}
+      <div className="sticky top-14 z-20 border-b border-border bg-bg/95 backdrop-blur sm:hidden">
+        <div className="flex gap-2 overflow-x-auto px-4 py-3">
+          {TABS.map(({ id, label, icon: Icon }) => (
+            <button
+              key={id}
+              onClick={() => setTab(id)}
+              className={cn(
+                "flex shrink-0 items-center gap-1.5 rounded-full border px-3.5 py-2 text-sm font-medium transition-colors",
+                tab === id ? "border-gold bg-gold/15 text-gold" : "border-border text-fg-muted"
+              )}
+            >
+              <Icon size={15} />
+              {label}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <div className="mx-auto flex w-full max-w-6xl flex-col gap-6 px-4 py-6 sm:flex-row sm:gap-8 sm:px-8 sm:py-8">
         <nav className="hidden w-48 shrink-0 flex-col gap-1 sm:flex">
           {TABS.map(({ id, label, icon: Icon }) => (
             <button
@@ -78,22 +105,7 @@ export function DashboardShell({
           ))}
         </nav>
 
-        <div className="mb-6 flex gap-2 overflow-x-auto sm:hidden">
-          {TABS.map(({ id, label }) => (
-            <button
-              key={id}
-              onClick={() => setTab(id)}
-              className={cn(
-                "shrink-0 rounded-full border px-4 py-2 text-sm font-medium",
-                tab === id ? "border-gold bg-gold/15 text-gold" : "border-border text-fg-muted"
-              )}
-            >
-              {label}
-            </button>
-          ))}
-        </div>
-
-        <main className="min-w-0 flex-1">
+        <main className="w-full min-w-0 flex-1">
           {tab === "gallery" && <GalleryManager categories={categories} images={images} />}
           {tab === "hero" && <HeroManager settings={settings} />}
           {tab === "testimonials" && <TestimonialsManager testimonials={testimonials} />}

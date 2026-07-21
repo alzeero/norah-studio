@@ -1,7 +1,6 @@
 "use client";
 
 import { useRef, useState, useTransition, type FormEvent } from "react";
-import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { updateHeroText, updateHeroImage } from "@/lib/actions/content";
 import { Input, Label, FieldError, FieldSuccess } from "@/components/ui/form-fields";
@@ -9,7 +8,6 @@ import { Button } from "@/components/ui/button";
 import type { SiteSettings } from "@/lib/types";
 
 export function HeroManager({ settings }: { settings: SiteSettings }) {
-  const router = useRouter();
   const [, startTransition] = useTransition();
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -27,7 +25,6 @@ export function HeroManager({ settings }: { settings: SiteSettings }) {
       try {
         await action();
         setSuccess(message);
-        router.refresh();
       } catch (e) {
         setError(e instanceof Error ? e.message : "حدث خطأ ما.");
       } finally {
@@ -69,7 +66,7 @@ export function HeroManager({ settings }: { settings: SiteSettings }) {
             <Label htmlFor="hero-subtitle">العنوان الفرعي / الشعار</Label>
             <Input id="hero-subtitle" value={subtitle} onChange={(e) => setSubtitle(e.target.value)} />
           </div>
-          <Button type="submit" disabled={busy}>
+          <Button type="submit" disabled={busy} className="w-full sm:w-auto">
             حفظ النص
           </Button>
         </form>
@@ -87,15 +84,15 @@ export function HeroManager({ settings }: { settings: SiteSettings }) {
           </div>
         )}
 
-        <form onSubmit={handleImageSubmit} className="mt-4 flex flex-wrap items-center gap-3">
+        <form onSubmit={handleImageSubmit} className="mt-4 flex flex-col items-stretch gap-3 sm:flex-row sm:items-center">
           <input
             ref={fileInputRef}
             type="file"
             accept="image/*"
             required
-            className="block text-sm text-fg-muted file:me-4 file:rounded-full file:border-0 file:bg-gold/15 file:px-4 file:py-2 file:text-sm file:font-medium file:text-gold hover:file:bg-gold/25"
+            className="block w-full text-sm text-fg-muted file:me-4 file:rounded-full file:border-0 file:bg-gold/15 file:px-4 file:py-2 file:text-sm file:font-medium file:text-gold hover:file:bg-gold/25"
           />
-          <Button type="submit" disabled={busy}>
+          <Button type="submit" disabled={busy} className="w-full sm:w-auto">
             {busy ? "جارٍ الرفع…" : "استبدال صورة الواجهة الرئيسية"}
           </Button>
         </form>

@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useTransition } from "react";
-import { useRouter } from "next/navigation";
 import { Moon, Sun } from "lucide-react";
 import { updateGeneralSettings } from "@/lib/actions/content";
 import { FieldError, FieldSuccess } from "@/components/ui/form-fields";
@@ -9,7 +8,6 @@ import { cn } from "@/lib/utils";
 import type { SiteSettings } from "@/lib/types";
 
 export function SettingsManager({ settings }: { settings: SiteSettings }) {
-  const router = useRouter();
   const [, startTransition] = useTransition();
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -25,7 +23,6 @@ export function SettingsManager({ settings }: { settings: SiteSettings }) {
       try {
         await updateGeneralSettings({ default_theme: value });
         setSuccess("تم تحديث المظهر الافتراضي بنجاح.");
-        router.refresh();
       } catch (e) {
         setError(e instanceof Error ? e.message : "حدث خطأ ما.");
       } finally {
