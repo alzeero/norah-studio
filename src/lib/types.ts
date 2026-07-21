@@ -32,7 +32,7 @@ export type SiteSettings = {
   hero_image_url: string | null;
   whatsapp_phone: string;
   whatsapp_message: string;
-  default_theme: "light" | "dark";
+  default_theme: "light" | "dark" | "system";
   updated_at: string;
 };
 
