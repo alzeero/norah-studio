@@ -39,6 +39,8 @@ create table if not exists public.site_settings (
   hero_image_url text,
   whatsapp_phone text not null default '',
   whatsapp_message text not null default '',
+  instagram_url text not null default '',
+  tiktok_url text not null default '',
   default_theme text not null default 'system' check (default_theme in ('light', 'dark', 'system')),
   updated_at timestamptz not null default now(),
   constraint site_settings_singleton check (id = 1)
