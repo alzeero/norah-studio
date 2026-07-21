@@ -2,7 +2,7 @@ import { forwardRef } from "react";
 import { cn } from "@/lib/utils";
 
 const fieldBase =
-  "w-full rounded-lg border border-border bg-bg-elevated px-3.5 py-2.5 text-sm text-fg placeholder:text-fg-muted/70 transition-colors focus:border-gold focus:outline-none focus:ring-1 focus:ring-gold disabled:opacity-50";
+  "w-full rounded-lg border border-border bg-bg-elevated px-3.5 py-2.5 text-base text-fg placeholder:text-fg-muted/70 transition-colors focus:border-gold focus:outline-none focus:ring-1 focus:ring-gold disabled:opacity-50 sm:text-sm";
 
 export const Label = forwardRef<HTMLLabelElement, React.LabelHTMLAttributes<HTMLLabelElement>>(
   ({ className, ...props }, ref) => (
