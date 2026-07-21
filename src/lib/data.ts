@@ -54,7 +54,27 @@ export async function getSiteSettings(supabase: SupabaseClient): Promise<SiteSet
     if (error) console.error("getSiteSettings failed:", error.message);
     return DEFAULT_SETTINGS;
   }
-  return data;
+  // Defensive: guarantee every field is actually the type SiteSettings
+  // promises, regardless of what the row actually contains. This matters
+  // specifically for columns added after the table already existed
+  // (instagram_url/tiktok_url) — if the migration adding them hasn't been
+  // run yet, they're simply absent from the row (not null, genuinely
+  // missing), which would otherwise silently violate SiteSettings' promise
+  // that these are always strings and could surface as a render error
+  // wherever that value gets used.
+  return {
+    id: data.id ?? 1,
+    hero_title: data.hero_title ?? DEFAULT_SETTINGS.hero_title,
+    hero_subtitle: data.hero_subtitle ?? DEFAULT_SETTINGS.hero_subtitle,
+    hero_image_path: data.hero_image_path ?? null,
+    hero_image_url: data.hero_image_url ?? null,
+    whatsapp_phone: data.whatsapp_phone ?? "",
+    whatsapp_message: data.whatsapp_message ?? DEFAULT_SETTINGS.whatsapp_message,
+    instagram_url: data.instagram_url ?? "",
+    tiktok_url: data.tiktok_url ?? "",
+    default_theme: data.default_theme ?? "system",
+    updated_at: data.updated_at ?? new Date().toISOString(),
+  };
 }
 
 /**
