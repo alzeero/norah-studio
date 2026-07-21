@@ -48,6 +48,21 @@
     transition: background-color 0.4s ease, color 0.4s ease;
   }
 
+  /* Letter-spacing of any amount breaks Arabic's cursive letter-joining, so
+     it must never apply here — enforced globally rather than trusting every
+     component to remember to opt out. Deliberately the simplest possible
+     selector (no multi-argument :not() with a compound descendant selector,
+     which has inconsistent support on some engines, notably older WebKit) —
+     simplicity here matters more than preserving tracking on the couple of
+     LTR-only bits (phone number, form inputs), which look fine without it. */
+  html[dir="rtl"] * {
+    letter-spacing: normal !important;
+  }
+
+  .font-arabic {
+    letter-spacing: normal !important;
+  }
+
   ::selection {
     background-color: hsl(var(--gold) / 0.28);
     color: hsl(var(--fg));
