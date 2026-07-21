@@ -2,13 +2,10 @@
 
 import Image from "next/image";
 import { useLanguage } from "@/components/providers/providers";
-import { formatLocalPhone } from "@/lib/utils";
-import type { SiteSettings } from "@/lib/types";
 
-export function Footer({ settings }: { settings: SiteSettings }) {
+export function Footer() {
   const { t } = useLanguage();
   const year = new Date().getFullYear();
-  const localPhone = settings.whatsapp_phone ? formatLocalPhone(settings.whatsapp_phone) : null;
 
   return (
     <footer className="border-t border-border py-12">
@@ -16,18 +13,14 @@ export function Footer({ settings }: { settings: SiteSettings }) {
         <Image
           src="/logo/norah-monogram.png"
           alt="Norah Studio"
-          width={140}
-          height={90}
-          className="h-8 w-auto opacity-90"
+          width={168}
+          height={108}
+          className="h-[2.4rem] w-auto opacity-90"
         />
-        <p className="text-sm text-fg-muted">
-          {t.footer.tagline}
-          {localPhone && (
-            <span dir="ltr" className="mx-2 inline-block">
-              • {localPhone}
-            </span>
-          )}
-        </p>
+        <div className="space-y-1.5">
+          <p className="text-sm font-medium text-fg">{t.footer.tagline}</p>
+          <p className="text-sm text-fg-muted">{t.footer.subtitle}</p>
+        </div>
         <p className="text-xs text-fg-muted/70">
           © {year} Norah Abdullah Studio — {t.footer.rights}
         </p>

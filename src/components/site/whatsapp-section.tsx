@@ -1,9 +1,11 @@
 "use client";
 
 import { useLanguage } from "@/components/providers/providers";
-import { buildWhatsAppUrl } from "@/lib/utils";
+import { buildWhatsAppUrl, formatLocalPhone } from "@/lib/utils";
 import { SectionHeading } from "./section-heading";
 import { WhatsAppIcon } from "./whatsapp-icon";
+import { InstagramIcon } from "./instagram-icon";
+import { TikTokIcon } from "./tiktok-icon";
 import type { SiteSettings } from "@/lib/types";
 
 export function WhatsAppSection({ settings }: { settings: SiteSettings }) {
@@ -11,6 +13,8 @@ export function WhatsAppSection({ settings }: { settings: SiteSettings }) {
   const href = settings.whatsapp_phone
     ? buildWhatsAppUrl(settings.whatsapp_phone, settings.whatsapp_message)
     : undefined;
+
+  const hasSocialLinks = Boolean(settings.instagram_url || settings.tiktok_url);
 
   return (
     <section
@@ -21,7 +25,7 @@ export function WhatsAppSection({ settings }: { settings: SiteSettings }) {
       <div className="relative mx-auto max-w-2xl px-6 text-center">
         <SectionHeading eyebrow={t.whatsapp.eyebrow} heading={t.whatsapp.heading} className="[&_h2]:text-white" />
 
-        <div className="mt-10 flex flex-col items-center gap-5">
+        <div className="mt-10 flex flex-col items-center gap-6">
           {href ? (
             <a
               href={href}
@@ -40,13 +44,36 @@ export function WhatsAppSection({ settings }: { settings: SiteSettings }) {
           )}
 
           {settings.whatsapp_phone && (
-            <p
-              dir="ltr"
-              className="flex items-center gap-2 text-lg font-medium text-white"
-            >
-              <WhatsAppIcon className="h-5 w-5 shrink-0 text-gold" />
-              <span>+{settings.whatsapp_phone.replace(/[^\d]/g, "")}</span>
+            <p dir="ltr" className="text-lg font-medium text-white">
+              📞 {formatLocalPhone(settings.whatsapp_phone)}
             </p>
+          )}
+
+          {hasSocialLinks && (
+            <div className="flex items-center justify-center gap-5">
+              {settings.tiktok_url && (
+                <a
+                  href={settings.tiktok_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="TikTok"
+                  className="text-white/70 transition-colors hover:text-gold"
+                >
+                  <TikTokIcon className="h-6 w-6" />
+                </a>
+              )}
+              {settings.instagram_url && (
+                <a
+                  href={settings.instagram_url}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Instagram"
+                  className="text-white/70 transition-colors hover:text-gold"
+                >
+                  <InstagramIcon className="h-6 w-6" />
+                </a>
+              )}
+            </div>
           )}
         </div>
       </div>
