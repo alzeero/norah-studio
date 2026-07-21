@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { GeistSans } from "geist/font/sans";
 import { Noto_Kufi_Arabic } from "next/font/google";
 import { Providers } from "@/components/providers/providers";
+import { createClient } from "@/lib/supabase/server";
 import { getSiteSettings } from "@/lib/data";
 import "./globals.css";
 
@@ -41,7 +42,8 @@ export const viewport: Viewport = {
 };
 
 export default async function RootLayout({ children }: { children: React.ReactNode }) {
-  const settings = await getSiteSettings();
+  const supabase = await createClient();
+  const settings = await getSiteSettings(supabase);
 
   return (
     <html
