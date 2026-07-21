@@ -18,10 +18,9 @@ export type Dictionary = {
     cta: string;
     scroll: string;
   };
-  categories: {
+  portfolio: {
     eyebrow: string;
     heading: string;
-    all: string;
   };
   gallery: {
     empty: string;
@@ -34,7 +33,6 @@ export type Dictionary = {
   whatsapp: {
     eyebrow: string;
     heading: string;
-    body: string;
     cta: string;
   };
   footer: {
@@ -61,27 +59,25 @@ export const dictionary: Record<Lang, Dictionary> = {
       cta: "احجزي جلستك",
       scroll: "مرري لأسفل",
     },
-    categories: {
+    portfolio: {
       eyebrow: "المعرض",
       heading: "استكشفي أعمالنا",
-      all: "الكل",
     },
     gallery: {
       empty: "سيتم إضافة الصور قريبًا",
     },
     testimonials: {
-      eyebrow: "آراء العملاء",
-      heading: "ماذا يقول عملاؤنا",
+      eyebrow: "",
+      heading: "آراء العملاء",
       empty: "لا توجد آراء بعد",
     },
     whatsapp: {
       eyebrow: "تواصلي معنا",
       heading: "لنوثّق لحظتكم القادمة",
-      body: "أخبرينا عن مناسبتكم وسنعود إليكم لتأكيد الموعد المناسب.",
       cta: "تواصل عبر واتساب",
     },
     footer: {
-      tagline: "تصوير فوتوغرافي وفيديو فاخر",
+      tagline: "تصوير فوتوغرافي",
       rights: "جميع الحقوق محفوظة",
     },
     theme: {
@@ -102,27 +98,25 @@ export const dictionary: Record<Lang, Dictionary> = {
       cta: "Book a Session",
       scroll: "Scroll",
     },
-    categories: {
+    portfolio: {
       eyebrow: "Portfolio",
       heading: "Explore Our Work",
-      all: "All",
     },
     gallery: {
       empty: "Images coming soon",
     },
     testimonials: {
-      eyebrow: "Testimonials",
-      heading: "What Our Clients Say",
+      eyebrow: "",
+      heading: "Testimonials",
       empty: "No testimonials yet",
     },
     whatsapp: {
       eyebrow: "Get In Touch",
       heading: "Let's Capture Your Next Moment",
-      body: "Tell us about your occasion and we'll follow up to confirm the perfect time.",
       cta: "Message Us on WhatsApp",
     },
     footer: {
-      tagline: "Luxury Photography & Videography",
+      tagline: "Photography",
       rights: "All rights reserved",
     },
     theme: {

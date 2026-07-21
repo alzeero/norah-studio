@@ -1,14 +1,5 @@
-export type Category = {
-  id: string;
-  name: string;
-  slug: string;
-  sort_order: number;
-  created_at: string;
-};
-
 export type GalleryImage = {
   id: string;
-  category_id: string | null;
   storage_path: string;
   url: string;
   caption: string | null;
@@ -37,7 +28,6 @@ export type SiteSettings = {
 };
 
 export type SiteData = {
-  categories: Category[];
   images: GalleryImage[];
   testimonials: Testimonial[];
   settings: SiteSettings;

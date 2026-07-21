@@ -24,10 +24,14 @@ export function buildWhatsAppUrl(phone: string, message: string): string {
   return `https://wa.me/${digitsOnly}?${params.toString()}`;
 }
 
-export function slugify(input: string): string {
-  return input
-    .trim()
-    .toLowerCase()
-    .replace(/[^a-z0-9\u0600-\u06FF]+/g, "-")
-    .replace(/(^-+|-+$)/g, "");
+/** Converts a stored international number (e.g. "966534101445") into a
+ *  locally-readable display format (e.g. "0534101445"). Falls back to
+ *  showing the digits as-is if they don't match the expected Saudi
+ *  country-code pattern, so it never shows something broken. */
+export function formatLocalPhone(phone: string): string {
+  const digits = phone.replace(/[^\d]/g, "");
+  if (digits.startsWith("966") && digits.length === 12) {
+    return "0" + digits.slice(3);
+  }
+  return digits;
 }

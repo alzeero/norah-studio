@@ -1,6 +1,6 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 import { createClient } from "@/lib/supabase/server";
-import type { Category, GalleryImage, Testimonial, SiteSettings, SiteData } from "@/lib/types";
+import type { GalleryImage, Testimonial, SiteSettings, SiteData } from "@/lib/types";
 
 const DEFAULT_SETTINGS: SiteSettings = {
   id: 1,
@@ -17,30 +17,10 @@ const DEFAULT_SETTINGS: SiteSettings = {
 
 /**
  * Every function below takes an already-constructed Supabase client instead
- * of creating its own. This is deliberate: constructing a client is cheap,
- * but each one independently evaluates whether the session needs refreshing
- * — and a real request-scoped Supabase session (via cookies) can only be
- * refreshed once safely. Multiple independent clients doing that
- * concurrently within the same request (as this file used to do — one
- * client per function, four functions run together via Promise.all) is a
- * known class of bug: the second concurrent refresh attempt uses a refresh
- * token the first one has already rotated out, and fails. Building exactly
- * one client per page render and passing it through removes that risk
- * entirely, and is simple enough to verify just by reading the code — no
- * framework-level memoization behavior to reason about.
+ * of creating its own — see git history / CHANGELOG for why: multiple
+ * independent clients built concurrently within one request risk racing on
+ * session/token refresh. One client, built once per render, passed through.
  */
-
-export async function getCategories(supabase: SupabaseClient): Promise<Category[]> {
-  const { data, error } = await supabase
-    .from("categories")
-    .select("*")
-    .order("sort_order", { ascending: true });
-  if (error) {
-    console.error("getCategories failed:", error.message);
-    return [];
-  }
-  return data ?? [];
-}
 
 export async function getGalleryImages(supabase: SupabaseClient): Promise<GalleryImage[]> {
   const { data, error } = await supabase
@@ -78,15 +58,14 @@ export async function getSiteSettings(supabase: SupabaseClient): Promise<SiteSet
 /**
  * Convenience wrapper for callers that just want everything and don't
  * already have a client (e.g. the public page). Builds exactly one client
- * itself and passes it to all four reads above.
+ * itself and passes it to all reads below.
  */
 export async function getSiteData(): Promise<SiteData> {
   const supabase = await createClient();
-  const [categories, images, testimonials, settings] = await Promise.all([
-    getCategories(supabase),
+  const [images, testimonials, settings] = await Promise.all([
     getGalleryImages(supabase),
     getTestimonials(supabase),
     getSiteSettings(supabase),
   ]);
-  return { categories, images, testimonials, settings };
+  return { images, testimonials, settings };
 }
