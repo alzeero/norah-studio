@@ -20,7 +20,6 @@ export function WhatsAppSection({ settings }: { settings: SiteSettings }) {
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,hsl(var(--gold)/0.14),transparent_60%)]" />
       <div className="relative mx-auto max-w-2xl px-6 text-center">
         <SectionHeading eyebrow={t.whatsapp.eyebrow} heading={t.whatsapp.heading} className="[&_h2]:text-white" />
-        <p className="mx-auto mt-5 max-w-md text-white/70">{t.whatsapp.body}</p>
 
         <div className="mt-10 flex flex-col items-center gap-5">
           {href ? (
@@ -28,9 +27,9 @@ export function WhatsAppSection({ settings }: { settings: SiteSettings }) {
               href={href}
               target="_blank"
               rel="noopener noreferrer"
-              className="group relative inline-flex h-16 items-center gap-3 rounded-full bg-gold px-10 text-base font-medium text-black shadow-gold transition-colors duration-300 hover:bg-white"
+              className="group relative inline-flex h-16 items-center gap-3 rounded-full bg-whatsapp px-10 text-base font-medium text-white shadow-lg transition-colors duration-300 hover:bg-whatsapp-deep"
             >
-              <span className="absolute inset-0 -z-10 rounded-full bg-gold/60 [animation:pulse-ring_2.8s_cubic-bezier(0.22,1,0.36,1)_infinite] motion-reduce:hidden" />
+              <span className="absolute inset-0 -z-10 rounded-full bg-whatsapp/60 [animation:pulse-ring_2.8s_cubic-bezier(0.22,1,0.36,1)_infinite] motion-reduce:hidden" />
               <WhatsAppIcon className="h-6 w-6 shrink-0" />
               {t.whatsapp.cta}
             </a>

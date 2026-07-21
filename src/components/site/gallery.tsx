@@ -1,8 +1,8 @@
 "use client";
 
-import Image from "next/image";
 import { useLanguage } from "@/components/providers/providers";
 import { cn } from "@/lib/utils";
+import { LazyImage } from "./lazy-image";
 import type { GalleryImage } from "@/lib/types";
 
 const PATTERN: Array<"feature" | "tall" | "normal"> = [
@@ -49,7 +49,7 @@ export function Gallery({
               variant === "tall" && "row-span-2"
             )}
           >
-            <Image
+            <LazyImage
               src={image.url}
               alt={image.caption ?? ""}
               fill

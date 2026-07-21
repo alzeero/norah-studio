@@ -3,7 +3,7 @@
 import { useCallback, useEffect } from "react";
 import { createPortal } from "react-dom";
 import Image from "next/image";
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence, motion, type PanInfo } from "framer-motion";
 import { ChevronLeft, ChevronRight, X } from "lucide-react";
 import type { GalleryImage } from "@/lib/types";
 
@@ -13,6 +13,8 @@ type LightboxProps = {
   onClose: () => void;
   onNavigate: (nextIndex: number) => void;
 };
+
+const SWIPE_THRESHOLD = 60;
 
 export function Lightbox({ images, index, onClose, onNavigate }: LightboxProps) {
   const open = index !== null;
@@ -27,6 +29,14 @@ export function Lightbox({ images, index, onClose, onNavigate }: LightboxProps) 
     if (index === null) return;
     onNavigate((index + 1) % images.length);
   }, [index, images.length, onNavigate]);
+
+  function handleDragEnd(_event: unknown, info: PanInfo) {
+    if (info.offset.x > SWIPE_THRESHOLD) {
+      goPrev();
+    } else if (info.offset.x < -SWIPE_THRESHOLD) {
+      goNext();
+    }
+  }
 
   useEffect(() => {
     if (!open) return;
@@ -49,7 +59,7 @@ export function Lightbox({ images, index, onClose, onNavigate }: LightboxProps) 
     <AnimatePresence>
       {open && current && (
         <motion.div
-          className="fixed inset-0 z-[200] flex items-center justify-center bg-black/92 p-4 sm:p-10"
+          className="fixed inset-0 z-[200] flex items-center justify-center bg-black/70 p-2 backdrop-blur-2xl sm:p-6"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
@@ -57,9 +67,9 @@ export function Lightbox({ images, index, onClose, onNavigate }: LightboxProps) 
           onClick={onClose}
         >
           <button
-            aria-label="Close"
+            aria-label="إغلاق"
             onClick={onClose}
-            className="absolute right-5 top-5 z-10 rounded-full p-2 text-white/80 transition-colors hover:text-gold"
+            className="fixed right-4 top-4 z-30 flex h-12 w-12 items-center justify-center rounded-full bg-black/60 text-white shadow-lg backdrop-blur-sm transition-colors hover:bg-gold hover:text-black sm:right-6 sm:top-6"
           >
             <X size={26} />
           </button>
@@ -67,50 +77,55 @@ export function Lightbox({ images, index, onClose, onNavigate }: LightboxProps) 
           {images.length > 1 && (
             <>
               <button
-                aria-label="Previous image"
+                aria-label="السابق"
                 onClick={(e) => {
                   e.stopPropagation();
                   goPrev();
                 }}
-                className="absolute left-3 top-1/2 z-10 -translate-y-1/2 rounded-full p-2 text-white/80 transition-colors hover:text-gold sm:left-6"
+                className="fixed left-2 top-1/2 z-30 flex h-14 w-14 -translate-y-1/2 items-center justify-center rounded-full bg-black/60 text-white shadow-lg backdrop-blur-sm transition-colors hover:bg-gold hover:text-black sm:left-6"
               >
-                <ChevronLeft size={30} />
+                <ChevronLeft size={32} />
               </button>
               <button
-                aria-label="Next image"
+                aria-label="التالي"
                 onClick={(e) => {
                   e.stopPropagation();
                   goNext();
                 }}
-                className="absolute right-3 top-1/2 z-10 -translate-y-1/2 rounded-full p-2 text-white/80 transition-colors hover:text-gold sm:right-6"
+                className="fixed right-2 top-1/2 z-30 flex h-14 w-14 -translate-y-1/2 items-center justify-center rounded-full bg-black/60 text-white shadow-lg backdrop-blur-sm transition-colors hover:bg-gold hover:text-black sm:right-6"
               >
-                <ChevronRight size={30} />
+                <ChevronRight size={32} />
               </button>
             </>
           )}
 
           <motion.div
             key={current.id}
+            drag="x"
+            dragConstraints={{ left: 0, right: 0 }}
+            dragElastic={0.6}
+            onDragEnd={handleDragEnd}
             initial={{ opacity: 0, scale: 0.97 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.98 }}
             transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
             onClick={(e) => e.stopPropagation()}
-            className="relative flex max-h-full max-w-5xl items-center justify-center"
+            className="relative flex h-full max-h-[94vh] w-full max-w-[96vw] items-center justify-center touch-pan-y"
           >
-            <div className="pointer-events-none absolute -inset-3 border border-gold/40 sm:-inset-4" />
-            <div className="relative max-h-[85vh] w-full">
+            <div className="pointer-events-none absolute inset-4 border border-gold/30 sm:inset-6" />
+            <div className="relative h-full max-h-[94vh] w-full max-w-5xl">
               <Image
                 src={current.url}
                 alt={current.caption ?? ""}
-                width={1600}
-                height={1200}
-                sizes="90vw"
-                className="max-h-[85vh] w-auto rounded-sm object-contain"
+                fill
+                sizes="96vw"
+                priority
+                draggable={false}
+                className="pointer-events-none select-none object-contain"
               />
             </div>
             {current.caption && (
-              <p className="absolute -bottom-9 left-0 right-0 text-center text-sm text-white/70">
+              <p className="absolute bottom-2 left-0 right-0 text-center text-sm text-white/80">
                 {current.caption}
               </p>
             )}

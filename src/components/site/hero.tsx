@@ -65,7 +65,7 @@ export function Hero({ settings }: { settings: SiteSettings }) {
           variants={item}
           dir={textDir(settings.hero_title)}
           className={`mt-8 whitespace-nowrap text-hero-title font-medium text-white ${
-            isArabicText(settings.hero_title) ? "font-arabic" : "font-sans"
+            isArabicText(settings.hero_title) ? "font-arabic" : "font-logo"
           }`}
         >
           {settings.hero_title}
@@ -85,7 +85,7 @@ export function Hero({ settings }: { settings: SiteSettings }) {
 
         <motion.a
           variants={item}
-          href="#book"
+          href="#portfolio"
           className="mt-10 inline-flex h-14 items-center justify-center rounded-full bg-gold px-10 text-base font-medium text-black transition-colors duration-300 hover:bg-white"
         >
           {t.hero.cta}
