@@ -241,7 +241,7 @@ export async function updateWhatsappSettings(data: { whatsapp_phone: string; wha
   revalidateAll();
 }
 
-export async function updateGeneralSettings(data: { default_theme: "light" | "dark" }) {
+export async function updateGeneralSettings(data: { default_theme: "light" | "dark" | "system" }) {
   const supabase = await requireAdmin();
   const { error } = await supabase
     .from("site_settings")
