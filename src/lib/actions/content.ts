@@ -158,7 +158,12 @@ export async function updateHeroImageRecord(data: { storage_path: string; url: s
   revalidateAll();
 }
 
-export async function updateWhatsappSettings(data: { whatsapp_phone: string; whatsapp_message: string }) {
+export async function updateWhatsappSettings(data: {
+  whatsapp_phone: string;
+  whatsapp_message: string;
+  instagram_url: string;
+  tiktok_url: string;
+}) {
   const supabase = await requireAdmin();
   const { error } = await supabase
     .from("site_settings")
