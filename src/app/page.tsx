@@ -23,7 +23,7 @@ export default async function HomePage() {
         <Testimonials testimonials={testimonials} />
         <WhatsAppSection settings={settings} />
       </main>
-      <Footer settings={settings} />
+      <Footer />
       <FloatingWhatsApp phone={settings.whatsapp_phone} message={settings.whatsapp_message} />
     </>
   );
