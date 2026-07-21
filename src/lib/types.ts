@@ -23,6 +23,8 @@ export type SiteSettings = {
   hero_image_url: string | null;
   whatsapp_phone: string;
   whatsapp_message: string;
+  instagram_url: string;
+  tiktok_url: string;
   default_theme: "light" | "dark" | "system";
   updated_at: string;
 };

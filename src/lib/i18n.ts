@@ -37,6 +37,7 @@ export type Dictionary = {
   };
   footer: {
     tagline: string;
+    subtitle: string;
     rights: string;
   };
   theme: {
@@ -73,11 +74,12 @@ export const dictionary: Record<Lang, Dictionary> = {
     },
     whatsapp: {
       eyebrow: "تواصلي معنا",
-      heading: "لنوثّق لحظتكم القادمة",
-      cta: "تواصل عبر واتساب",
+      heading: "لنوثق لحظتكم القادمة",
+      cta: "ابدأ المحادثة",
     },
     footer: {
       tagline: "تصوير فوتوغرافي",
+      subtitle: "حيث تتحول اللحظات إلى صور تُحكى",
       rights: "جميع الحقوق محفوظة",
     },
     theme: {
@@ -113,10 +115,11 @@ export const dictionary: Record<Lang, Dictionary> = {
     whatsapp: {
       eyebrow: "Get In Touch",
       heading: "Let's Capture Your Next Moment",
-      cta: "Message Us on WhatsApp",
+      cta: "Start the Conversation",
     },
     footer: {
       tagline: "Photography",
+      subtitle: "Where fleeting moments become timeless stories",
       rights: "All rights reserved",
     },
     theme: {
