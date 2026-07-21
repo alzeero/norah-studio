@@ -12,17 +12,8 @@ create extension if not exists "pgcrypto";
 -- Tables
 -- ----------------------------------------------------------------------------
 
-create table if not exists public.categories (
-  id uuid primary key default gen_random_uuid(),
-  name text not null,
-  slug text not null unique,
-  sort_order integer not null default 0,
-  created_at timestamptz not null default now()
-);
-
 create table if not exists public.gallery_images (
   id uuid primary key default gen_random_uuid(),
-  category_id uuid references public.categories(id) on delete set null,
   storage_path text not null,
   url text not null,
   caption text,
@@ -53,9 +44,7 @@ create table if not exists public.site_settings (
   constraint site_settings_singleton check (id = 1)
 );
 
-create index if not exists gallery_images_category_id_idx on public.gallery_images (category_id);
 create index if not exists gallery_images_sort_order_idx on public.gallery_images (sort_order);
-create index if not exists categories_sort_order_idx on public.categories (sort_order);
 create index if not exists testimonials_sort_order_idx on public.testimonials (sort_order);
 
 -- Seed the one settings row so dashboard updates always have a row to target.
@@ -75,16 +64,9 @@ on conflict (id) do nothing;
 -- the one studio admin created manually, see README.md — can write.
 -- ----------------------------------------------------------------------------
 
-alter table public.categories enable row level security;
 alter table public.gallery_images enable row level security;
 alter table public.testimonials enable row level security;
 alter table public.site_settings enable row level security;
-
-drop policy if exists "Public read categories" on public.categories;
-create policy "Public read categories" on public.categories for select using (true);
-drop policy if exists "Admin write categories" on public.categories;
-create policy "Admin write categories" on public.categories for all
-  using (auth.role() = 'authenticated') with check (auth.role() = 'authenticated');
 
 drop policy if exists "Public read gallery_images" on public.gallery_images;
 create policy "Public read gallery_images" on public.gallery_images for select using (true);
