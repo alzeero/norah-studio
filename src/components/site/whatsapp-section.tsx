@@ -1,7 +1,7 @@
 "use client";
 
 import { useLanguage } from "@/components/providers/providers";
-import { buildWhatsAppUrl, formatLocalPhone } from "@/lib/utils";
+import { buildWhatsAppUrl } from "@/lib/utils";
 import { SectionHeading } from "./section-heading";
 import { WhatsAppIcon } from "./whatsapp-icon";
 import { InstagramIcon } from "./instagram-icon";
@@ -40,12 +40,6 @@ export function WhatsAppSection({ settings }: { settings: SiteSettings }) {
           ) : (
             <p className="text-sm text-white/50">
               {t.whatsapp.cta} — أضيفي رقم واتساب من لوحة التحكم لتفعيل هذا الزر.
-            </p>
-          )}
-
-          {settings.whatsapp_phone && (
-            <p dir="ltr" className="text-lg font-medium text-white">
-              📞 {formatLocalPhone(settings.whatsapp_phone)}
             </p>
           )}
 
