@@ -12,18 +12,18 @@ import { Footer } from "@/components/site/footer";
 export const revalidate = 60;
 
 export default async function HomePage() {
-  const { categories, images, testimonials, settings } = await getSiteData();
+  const { images, testimonials, settings } = await getSiteData();
 
   return (
     <>
       <Navbar />
       <main>
         <Hero settings={settings} />
-        <PortfolioSection categories={categories} images={images} />
+        <PortfolioSection images={images} />
         <Testimonials testimonials={testimonials} />
         <WhatsAppSection settings={settings} />
       </main>
-      <Footer />
+      <Footer settings={settings} />
       <FloatingWhatsApp phone={settings.whatsapp_phone} message={settings.whatsapp_message} />
     </>
   );

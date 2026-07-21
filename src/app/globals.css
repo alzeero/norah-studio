@@ -63,6 +63,20 @@
     letter-spacing: normal !important;
   }
 
+  /* Elegant tracking for the Cormorant Garamond brand-name typography.
+     Placed after the RTL reset above: both are equal-specificity
+     !important rules, so source order decides, and this one needs to win
+     whenever the English wordmark renders inside the (default) RTL page. */
+  .font-logo {
+    letter-spacing: 0.04em !important;
+  }
+
+  /* Keeps anchor-scrolled sections from tucking their heading under the
+     fixed header. */
+  [id] {
+    scroll-margin-top: 96px;
+  }
+
   ::selection {
     background-color: hsl(var(--gold) / 0.28);
     color: hsl(var(--fg));

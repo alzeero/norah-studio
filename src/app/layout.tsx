@@ -1,6 +1,6 @@
 import type { Metadata, Viewport } from "next";
 import { GeistSans } from "geist/font/sans";
-import { Noto_Kufi_Arabic } from "next/font/google";
+import { Noto_Kufi_Arabic, Cormorant_Garamond } from "next/font/google";
 import { Providers } from "@/components/providers/providers";
 import { createClient } from "@/lib/supabase/server";
 import { getSiteSettings } from "@/lib/data";
@@ -10,6 +10,13 @@ const notoKufiArabic = Noto_Kufi_Arabic({
   subsets: ["arabic"],
   weight: ["400", "500", "600", "700", "800"],
   variable: "--font-noto-kufi-arabic",
+  display: "swap",
+});
+
+const cormorantGaramond = Cormorant_Garamond({
+  subsets: ["latin"],
+  weight: ["500", "600", "700"],
+  variable: "--font-cormorant-garamond",
   display: "swap",
 });
 
@@ -50,11 +57,12 @@ export default async function RootLayout({ children }: { children: React.ReactNo
       lang="ar"
       dir="rtl"
       suppressHydrationWarning
-      className={`${GeistSans.variable} ${notoKufiArabic.variable}`}
+      className={`${GeistSans.variable} ${notoKufiArabic.variable} ${cormorantGaramond.variable}`}
       style={
         {
           "--font-sans": "var(--font-geist-sans)",
           "--font-arabic": "var(--font-noto-kufi-arabic)",
+          "--font-logo": "var(--font-cormorant-garamond)",
         } as React.CSSProperties
       }
     >
