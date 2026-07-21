@@ -48,6 +48,19 @@
     transition: background-color 0.4s ease, color 0.4s ease;
   }
 
+  /* iOS Safari applies its own default chrome to form controls (rounded
+     corners, inset shadows) that fights with custom styling — scoped to
+     the admin dashboard/login only, since that's the only part of the
+     app with real form controls in the first place. */
+  .dashboard-root input,
+  .dashboard-root textarea,
+  .dashboard-root select,
+  .dashboard-root button {
+    -webkit-appearance: none;
+    appearance: none;
+    -webkit-tap-highlight-color: transparent;
+  }
+
   /* Letter-spacing of any amount breaks Arabic's cursive letter-joining, so
      it must never apply here — enforced globally rather than trusting every
      component to remember to opt out. Deliberately the simplest possible
