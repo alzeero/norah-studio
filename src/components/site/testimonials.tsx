@@ -32,8 +32,8 @@ export function Testimonials({ testimonials }: { testimonials: Testimonial[] }) 
                   </blockquote>
                   <figcaption
                     dir={textDir(testimonial.customer_name)}
-                    className={`mt-6 text-sm font-medium uppercase tracking-widest2 text-gold ${
-                      isArabicText(testimonial.customer_name) ? "font-arabic" : "font-sans"
+                    className={`mt-6 text-sm font-medium uppercase text-gold ${
+                      isArabicText(testimonial.customer_name) ? "font-arabic" : "font-sans tracking-widest2"
                     }`}
                   >
                     {testimonial.customer_name}

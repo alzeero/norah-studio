@@ -20,7 +20,7 @@ export function CategoryNav({ categories, active, onSelect }: CategoryNavProps) 
         type="button"
         onClick={() => onSelect("all")}
         className={cn(
-          "rounded-full border px-5 py-2 text-sm font-medium tracking-tight transition-colors duration-300",
+          "rounded-full border px-5 py-2 text-sm font-medium transition-colors duration-300",
           active === "all"
             ? "border-gold bg-gold text-black"
             : "border-border text-fg-muted hover:border-gold hover:text-gold"
@@ -35,7 +35,7 @@ export function CategoryNav({ categories, active, onSelect }: CategoryNavProps) 
           dir={isArabicText(category.name) ? "rtl" : "ltr"}
           onClick={() => onSelect(category.id)}
           className={cn(
-            "rounded-full border px-5 py-2 text-sm font-medium tracking-tight transition-colors duration-300",
+            "rounded-full border px-5 py-2 text-sm font-medium transition-colors duration-300",
             isArabicText(category.name) ? "font-arabic" : "font-sans",
             active === category.id
               ? "border-gold bg-gold text-black"

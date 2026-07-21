@@ -99,7 +99,13 @@ export function Hero({ settings }: { settings: SiteSettings }) {
           transition={{ delay: 1.4, duration: 1 }}
           className="absolute inset-x-0 bottom-8 z-10 flex flex-col items-center gap-2 text-white/70"
         >
-          <span className="text-eyebrow uppercase">{t.hero.scroll}</span>
+          <span
+            className={`text-eyebrow uppercase ${
+              isArabicText(t.hero.scroll) ? "font-arabic" : "font-sans tracking-widest2"
+            }`}
+          >
+            {t.hero.scroll}
+          </span>
           <motion.span
             animate={{ y: [0, 6, 0] }}
             transition={{ duration: 1.8, repeat: Infinity, ease: "easeInOut" }}

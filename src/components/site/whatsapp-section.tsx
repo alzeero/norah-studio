@@ -43,7 +43,7 @@ export function WhatsAppSection({ settings }: { settings: SiteSettings }) {
           {settings.whatsapp_phone && (
             <p
               dir="ltr"
-              className="flex items-center gap-2 text-lg font-medium tracking-wider text-white"
+              className="flex items-center gap-2 text-lg font-medium text-white"
             >
               <WhatsAppIcon className="h-5 w-5 shrink-0 text-gold" />
               <span>+{settings.whatsapp_phone.replace(/[^\d]/g, "")}</span>
