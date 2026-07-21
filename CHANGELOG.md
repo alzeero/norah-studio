@@ -232,3 +232,42 @@ src/components/dashboard/testimonials-manager.tsx
 src/components/dashboard/whatsapp-manager.tsx
 src/components/dashboard/settings-manager.tsx
 ```
+
+---
+
+## Sixth pass — theme follows system preference, single-client architecture, WhatsApp button
+
+### 1. Floating WhatsApp button
+
+Checked `src/app/page.tsx` directly — it's still correctly imported and rendered there, unchanged since it was added, with the same `bottom-6 right-6` fixed positioning. I couldn't find a code regression. The component only renders when `settings.whatsapp_phone` is non-empty (correct — no point showing a button with nothing to link to) — and given issue #3 below meant dashboard saves have been unreliable, the most likely explanation is that a WhatsApp number entered in the dashboard didn't actually persist. Once #3 is fixed, re-save the number in **WhatsApp** and the button should reappear; the component itself needed no changes.
+
+### 2. Theme now follows system preference by default
+
+- **`src/lib/types.ts`** — `default_theme` is now `"light" | "dark" | "system"`.
+- **`src/components/providers/providers.tsx`** — `enableSystem` turned on (was explicitly `false`, which disabled system-preference tracking entirely). With it on and `defaultTheme="system"`, next-themes reads `prefers-color-scheme` and live-updates if the visitor's OS theme changes while the page is open.
+- **`src/components/dashboard/settings-manager.tsx`** — now three choices: **تلقائي** (system), **فاتح** (light), **داكن** (dark). Choosing light or dark here overrides the automatic behavior for new visitors; an individual visitor can still further override their own view with the existing navbar toggle, same as before.
+- **`src/lib/data.ts`, `src/lib/actions/content.ts`** — the "system" value threaded through.
+- **`supabase/schema.sql`** — updated for new installs; **`supabase/migration_add_system_theme.sql`** *(new)* — for your already-existing database, since re-running `schema.sql` won't alter an existing check constraint or row. Run it once in the SQL Editor.
+
+### 3. The Server Component error — new architecture, not another patch
+
+Removing `router.refresh()` didn't fix it either, which rules that out as sufficient on its own and points at something inside the render itself. Re-examined `src/lib/data.ts`: `getCategories`, `getGalleryImages`, `getTestimonials`, and `getSiteSettings` each independently called `createClient()`, and `getSiteData()` ran all four **concurrently** via `Promise.all`. That means up to four independent Supabase client instances, each capable of deciding on its own that the session needed refreshing, doing so **at the same time** within one render. That's a real, known failure mode for cookie/JWT-based sessions: refresh tokens are typically single-use, so if two concurrent attempts both try to refresh the same one, the second fails because the first already rotated it out.
+
+**Fix:** `getCategories`, `getGalleryImages`, `getTestimonials`, and `getSiteSettings` now take an already-built client as a parameter instead of each constructing their own. `src/app/admin/dashboard/page.tsx` builds **exactly one** client per render and passes that same instance into all four reads plus the auth check. `src/app/layout.tsx` does the same for its own settings read. This isn't a memoization trick to reason about (like the earlier `cache()` attempt) — it's just one client, visibly, in the code. `getSiteData()` still exists as a convenience wrapper (builds one client, passes it to all four) for the public page, which doesn't need to share a client with an auth check.
+
+I'm not going to claim certainty I can't back up without running this myself — but this is a concrete, verifiable-by-reading-the-code change to the actual concurrency pattern that was there, not another layer of error handling around it.
+
+### Files changed in this pass
+
+```
+src/lib/types.ts
+src/lib/data.ts
+src/app/admin/dashboard/page.tsx
+src/app/layout.tsx
+src/components/providers/providers.tsx
+src/components/dashboard/settings-manager.tsx
+src/lib/actions/content.ts
+supabase/schema.sql
+supabase/migration_add_system_theme.sql          (new)
+README.md
+```

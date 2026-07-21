@@ -15,6 +15,8 @@ The one signature visual motif is a pair of thin gold viewfinder corners — bor
 
 1. Create a new project at [supabase.com](https://supabase.com/dashboard).
 2. Go to **SQL Editor → New query**, paste the entire contents of `supabase/schema.sql`, and run it. This creates all four tables, seeds the settings row, enables Row Level Security, and creates the public `media` storage bucket with the correct read/write policies.
+
+   **Already set this up before?** If your project already existed before the "Auto" theme option was added, also run `supabase/migration_add_system_theme.sql` once — it updates the existing `default_theme` column to allow `'system'` as a value, which the original `schema.sql` didn't.
 3. Go to **Authentication → Users → Add user** and create the single admin account (your email + a password). There is no public sign-up screen anywhere in the app — this is the only way in.
 4. Go to **Project Settings → API** and copy the **Project URL** and **anon public** key.
 
@@ -50,7 +52,7 @@ Sign in with the admin account you created in step 2.3. From there:
 | **Hero** | Hero title, subtitle/tagline, hero photo |
 | **Testimonials** | Add/edit/delete client testimonials (paste real WhatsApp messages as-is) |
 | **WhatsApp** | The phone number and default pre-filled message behind the "Book a Session" button |
-| **Settings** | Default theme (light/dark) for first-time visitors |
+| **Settings** | Default theme (Auto/Light/Dark) for first-time visitors — Auto follows the visitor's device preference and updates live |
 
 Every change reflects on the public page within seconds.
 
