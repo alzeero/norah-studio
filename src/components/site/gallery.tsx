@@ -45,8 +45,8 @@ export function Gallery({
             aria-label={image.caption ?? "Open image"}
             className={cn(
               "frame-corners group relative overflow-hidden rounded-lg bg-bg-elevated",
-              variant === "feature" && "col-span-2 row-span-2",
-              variant === "tall" && "row-span-2"
+              variant === "feature" && "md:col-span-2 md:row-span-2",
+              variant === "tall" && "md:row-span-2"
             )}
           >
             <LazyImage
@@ -54,7 +54,7 @@ export function Gallery({
               alt={image.caption ?? ""}
               fill
               sizes="(min-width: 768px) 33vw, 50vw"
-              className="object-cover transition-transform duration-700 ease-premium group-hover:scale-[1.04]"
+              className="object-contain transition-transform duration-700 ease-premium group-hover:scale-[1.04]"
             />
             <div className="absolute inset-0 bg-gradient-to-t from-black/25 via-transparent to-transparent opacity-0 transition-opacity duration-500 group-hover:opacity-100" />
           </button>

@@ -1,10 +1,9 @@
-/** TikTok glyph (musical note over a disc), drawn inline — no new icon
- *  package dependency needed. Renders in currentColor to match the site's
- *  own palette. */
+/** Official TikTok glyph — single-path reproduction of TikTok's monochrome
+ *  note mark. Renders in currentColor to match the site's own palette. */
 export function TikTokIcon({ className }: { className?: string }) {
   return (
-    <svg viewBox="0 0 24 24" fill="currentColor" className={className} aria-hidden="true" focusable="false">
-      <path d="M16.6 2h-3.2v13.9c0 1.66-1.34 3-3 3s-3-1.34-3-3 1.34-3 3-3c.28 0 .55.04.8.11V9.7a6.3 6.3 0 0 0-.8-.05A6.25 6.25 0 0 0 4.15 21.9a6.25 6.25 0 0 0 10.65-4.4V8.75a8.1 8.1 0 0 0 4.75 1.53V7.06a4.9 4.9 0 0 1-2.84-1.4A4.86 4.86 0 0 1 16.6 2Z" />
+    <svg viewBox="0 0 16 16" fill="currentColor" className={className} aria-hidden="true" focusable="false">
+      <path d="M9 0h1.98c.144.715.54 1.617 1.235 2.512C12.895 3.389 13.797 4 15 4v2c-1.753 0-3.07-.814-4-1.829V11a5 5 0 1 1-5-5v2a3 3 0 1 0 3 3z" />
     </svg>
   );
 }

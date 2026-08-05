@@ -59,77 +59,74 @@ export function Lightbox({ images, index, onClose, onNavigate }: LightboxProps) 
     <AnimatePresence>
       {open && current && (
         <motion.div
-          className="fixed inset-0 z-[200] flex items-center justify-center bg-black/70 p-2 backdrop-blur-2xl sm:p-6"
+          className="fixed inset-0 z-[200] flex items-center justify-center bg-black/70 p-4 backdrop-blur-2xl sm:p-6"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 0.3 }}
           onClick={onClose}
         >
-          <button
-            aria-label="إغلاق"
-            onClick={onClose}
-            className="fixed right-4 top-4 z-30 flex h-12 w-12 items-center justify-center rounded-full bg-black/60 text-white shadow-lg backdrop-blur-sm transition-colors hover:bg-gold hover:text-black sm:right-6 sm:top-6"
-          >
-            <X size={26} />
-          </button>
-
-          {images.length > 1 && (
-            <>
-              <button
-                aria-label="السابق"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  goPrev();
-                }}
-                className="fixed left-2 top-1/2 z-30 flex h-14 w-14 -translate-y-1/2 items-center justify-center rounded-full bg-black/60 text-white shadow-lg backdrop-blur-sm transition-colors hover:bg-gold hover:text-black sm:left-6"
-              >
-                <ChevronLeft size={32} />
-              </button>
-              <button
-                aria-label="التالي"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  goNext();
-                }}
-                className="fixed right-2 top-1/2 z-30 flex h-14 w-14 -translate-y-1/2 items-center justify-center rounded-full bg-black/60 text-white shadow-lg backdrop-blur-sm transition-colors hover:bg-gold hover:text-black sm:right-6"
-              >
-                <ChevronRight size={32} />
-              </button>
-            </>
-          )}
-
-          <motion.div
-            key={current.id}
-            drag="x"
-            dragConstraints={{ left: 0, right: 0 }}
-            dragElastic={0.6}
-            onDragEnd={handleDragEnd}
-            initial={{ opacity: 0, scale: 0.97 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.98 }}
-            transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+          <div
+            className="flex h-full max-h-[94vh] w-full max-w-5xl flex-col items-center gap-4"
             onClick={(e) => e.stopPropagation()}
-            className="relative flex h-full max-h-[94vh] w-full max-w-[96vw] items-center justify-center touch-pan-y"
           >
-            <div className="pointer-events-none absolute inset-4 border border-gold/30 sm:inset-6" />
-            <div className="relative h-full max-h-[94vh] w-full max-w-5xl">
+            <button
+              aria-label="إغلاق"
+              onClick={onClose}
+              className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-black/60 text-white shadow-lg backdrop-blur-sm transition-colors hover:bg-gold hover:text-black"
+            >
+              <X size={26} />
+            </button>
+
+            <motion.div
+              key={current.id}
+              drag="x"
+              dragConstraints={{ left: 0, right: 0 }}
+              dragElastic={0.6}
+              onDragEnd={handleDragEnd}
+              initial={{ opacity: 0, scale: 0.97 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.98 }}
+              transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+              className="relative min-h-0 w-full flex-1 touch-pan-y"
+            >
               <Image
                 src={current.url}
                 alt={current.caption ?? ""}
                 fill
                 sizes="96vw"
                 priority
+                unoptimized
                 draggable={false}
                 className="pointer-events-none select-none object-contain"
               />
-            </div>
+            </motion.div>
+
             {current.caption && (
-              <p className="absolute bottom-2 left-0 right-0 text-center text-sm text-white/80">
+              <p className="max-w-full shrink-0 px-6 text-center text-sm text-white/80">
                 {current.caption}
               </p>
             )}
-          </motion.div>
+
+            {images.length > 1 && (
+              <div dir="ltr" className="flex shrink-0 items-center gap-4">
+                <button
+                  aria-label="السابق"
+                  onClick={goPrev}
+                  className="flex h-14 w-14 items-center justify-center rounded-full bg-black/60 text-white shadow-lg backdrop-blur-sm transition-colors hover:bg-gold hover:text-black"
+                >
+                  <ChevronLeft size={32} />
+                </button>
+                <button
+                  aria-label="التالي"
+                  onClick={goNext}
+                  className="flex h-14 w-14 items-center justify-center rounded-full bg-black/60 text-white shadow-lg backdrop-blur-sm transition-colors hover:bg-gold hover:text-black"
+                >
+                  <ChevronRight size={32} />
+                </button>
+              </div>
+            )}
+          </div>
         </motion.div>
       )}
     </AnimatePresence>,
